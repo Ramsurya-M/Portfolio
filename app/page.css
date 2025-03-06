@@ -1,0 +1,9 @@
+.spark{
+    font-size: clamp(1rem, 9vw , 4rem);
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 5rem;
+    margin: auto;
+}
