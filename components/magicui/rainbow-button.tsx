@@ -29,3 +29,9 @@ export const RainbowButton = React.forwardRef<
 });
 
 RainbowButton.displayName = "RainbowButton";
+
+// Remove empty interface or add properties
+interface Props {
+  // Add at least one property
+  className?: string
+}

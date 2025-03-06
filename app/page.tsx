@@ -12,9 +12,9 @@ import LogoCarousel from './Carousal'
 import SkillsPage from './Skill'
 import Resume from './Resume'
 
-export default function Page() {
+export default function Home() {
   return (
-    <div>
+    <main>
       <Navbar/>
       <BackgroundLinesDemo/>
       <DockDemo/>
@@ -26,6 +26,6 @@ export default function Page() {
       <SparklesText className='text-center spark' text=" Made with ❤️ by Ramsurya" />
       <Contact/>
       <Footer/>
-    </div>
+    </main>
   )
 }
