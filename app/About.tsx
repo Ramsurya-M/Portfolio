@@ -13,7 +13,7 @@ const About = () => {
             I specialize in modern web technologies and love creating seamless user experiences.
           </p>
           <p className="text-base sm:text-lg mb-3 sm:mb-4 px-4 md:px-0">
-            With several years of experience in web development, I've worked on various projects 
+            With several years of experience in web development, I&apos;ve worked on various projects 
             ranging from small business websites to large-scale applications.
           </p>
           <p className="text-base sm:text-lg px-4 md:px-0">
