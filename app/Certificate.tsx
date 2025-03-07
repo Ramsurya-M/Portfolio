@@ -1,9 +1,7 @@
 'use client'
 
 import React from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ShineBorder } from '@/components/magicui/shine-border';
 
 const Certificate = () => {
   // Sample certificate data - replace with actual data source

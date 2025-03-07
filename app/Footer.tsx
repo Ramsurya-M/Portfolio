@@ -1,8 +1,6 @@
 'use client'
-import { useTheme } from 'next-themes'
 
 const Footer = () => {
-  const { theme } = useTheme()
 
   return (
     <footer className="w-full py-6 px-4 mt-auto bg-orange-400 dark:bg-orange-400 border-t border-black-900 dark:border-black-900">

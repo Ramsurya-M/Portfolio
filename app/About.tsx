@@ -9,7 +9,7 @@ const About = () => {
         <div className="w-full md:w-1/2 text-center md:text-left">
           <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6">About Me</h1>
           <p className="text-base sm:text-lg mb-3 sm:mb-4 px-4 md:px-0">
-            Hello! I'm a passionate developer with a keen interest in building innovative web solutions. 
+            Hello! I&apos;m a passionate developer with a keen interest in building innovative web solutions. 
             I specialize in modern web technologies and love creating seamless user experiences.
           </p>
           <p className="text-base sm:text-lg mb-3 sm:mb-4 px-4 md:px-0">
@@ -17,7 +17,7 @@ const About = () => {
             ranging from small business websites to large-scale applications.
           </p>
           <p className="text-base sm:text-lg px-4 md:px-0">
-            When I'm not coding, you can find me exploring new technologies, contributing to 
+            When I&apos;m not coding, you can find me exploring new technologies, contributing to 
             open-source projects, or sharing knowledge with the developer community.
           </p>
         </div>
