@@ -1,4 +1,3 @@
-import { DockDemo } from '@/components/magicui/DockDemo'
 import { BackgroundLinesDemo } from '@/components/ui/BackgroundLinesDemo'
 import React from 'react'
 import Navbar from './Navbar'
@@ -17,7 +16,6 @@ export default function Home() {
     <main>
       <Navbar/>
       <BackgroundLinesDemo/>
-      <DockDemo/>
       <LogoCarousel/>
       <About/>
       <SkillsPage/>
