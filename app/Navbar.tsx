@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import Link from "next/link";
 import { Moon, Sun } from "lucide-react";
 import "./Navbar.css";
 import { AvatarDemo } from "@/components/ui/AvatarDemo";
@@ -41,28 +40,6 @@ const Navbar = () => {
               <Moon className="h-5 w-5 text-gray-700" />
             )}
           </button>
-          {/* Navigation Links */}
-          {/* <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-4">
-              {[
-                { href: '/', label: 'Home' },
-                { href: '/about', label: 'About' },
-                { href: '/contact', label: 'Contact' },
-                { href: '/Certificate', label: 'Certificates' },
-                { href: '/Resume.jpg', label: 'Resume' }
-              ].map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-3 py-2 ${isActiveLink(href)}`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div> */}
-          {/* Theme Toggle Button */}   
-          {/* Mobile Menu Toggle Button */}
           <div className="flex-shrink-0">
             <AvatarDemo/>
           </div>
