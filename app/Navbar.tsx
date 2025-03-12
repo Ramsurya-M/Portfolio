@@ -10,7 +10,6 @@ import { usePathname } from 'next/navigation';
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -19,10 +18,6 @@ const Navbar = () => {
   if (!mounted) {
     return null;
   }
-
-  const isActiveLink = (path: string) => {
-    return pathname === path ? "text-blue-600 dark:text-blue-400" : "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white";
-  };
 
   return (
     <nav className="fixed w-full border-b border-gray-200 bg-white/50 dark:border-gray-800 dark:bg-gray-950/50 backdrop-blur-xl">
