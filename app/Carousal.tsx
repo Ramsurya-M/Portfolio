@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 const Carousal = () => {
   return (
-    <div className="relative w-full overflow-hidden bg-white dark:bg-gray-950">
+    <div className="relative w-full overflow-hidden bg-white dark:bg-black">
       <div className="absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent dark:from-gray-950"></div>
       <div className="absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent dark:from-gray-950"></div>
       
@@ -20,7 +20,7 @@ const Carousal = () => {
               <Image src="/logo/javascript.svg" alt="Brand 3" width={48} height={48} className="h-12" />
             </li>
             <li>
-              <Image src="/logo/bootstrap.svg" alt="Brand 4" width={48} height={48} className="h-12" />
+              <Image src="/logo/Bootstrap.svg" alt="Brand 4" width={48} height={48} className="h-12" />
             </li>
             <li>
               <Image src="/logo/react.svg" alt="Brand 5" width={48} height={48} className="h-12" />
@@ -62,7 +62,7 @@ const Carousal = () => {
               <Image src="/logo/javascript.svg" alt="Brand 3" width={48} height={48} className="h-12" />
             </li>
             <li>
-              <Image src="/logo/bootstrap.svg" alt="Brand 4" width={48} height={48} className="h-12" />
+              <Image src="/logo/Bootstrap.svg" alt="Brand 4" width={48} height={48} className="h-12" />
             </li>
             <li>
               <Image src="/logo/react.svg" alt="Brand 5" width={48} height={48} className="h-12" />
