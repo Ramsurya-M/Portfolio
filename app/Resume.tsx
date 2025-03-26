@@ -18,9 +18,9 @@ const Resume = () => {
               transition={{ duration: 0.5 }}
               className="relative w-full aspect-square"
             >
-<a href="/Resume.jpg" target="_blank" rel="noopener noreferrer">
+<a href="/Resume1.jpg" target="_blank" rel="noopener noreferrer">
   <Image
-    src="/Resume.jpg"
+    src="/Resume1.jpg"
     alt="Resume Photo"
     fill
     className="object-contain"
@@ -69,7 +69,7 @@ const Resume = () => {
               <div>
                 <h3 className="text-xl sm:text-2xl font-semibold mb-4 dark:text-white">Skills</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Html', 'Css', 'JavaScript', 'React', 'Bootstrap', 'TypeScript', 'Node.js', 'Next.js', 'TailwindCSS', 'Git', 'GitHub'].map((skill) => (
+                  {['Html', 'Css', 'JavaScript', 'React', 'Bootstrap', 'TypeScript', 'Vercel', 'TailwindCSS', 'Git', 'GitHub'].map((skill) => (
                     <span
                       key={skill}
                       className="px-3 py-1 bg-gray-200 dark:bg-orange-400 rounded-full text-sm transition-colors duration-200 hover:bg-gray-300 dark:hover:bg-orange-500 dark:text-black"

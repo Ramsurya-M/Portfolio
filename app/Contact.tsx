@@ -9,7 +9,7 @@ const Contact = () => {
     ramsurya2614@gmail.com
   </a>
 <a 
-  href="/Resume1.pdf" 
+  href="/Resume.pdf" 
   target="_blank" 
   rel="noopener noreferrer"
   className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium shadow-md hover:shadow-lg"

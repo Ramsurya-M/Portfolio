@@ -46,19 +46,19 @@ const Certificate = () => {
       id: 5,
       studentName: "Ramsurya",
       courseName: "Git & Github",
-      completionDate: "2024",
-      certificateId: "CC2024005",
+      completionDate: "2025",
+      certificateId: "z17O24957Iv0CJq17M",
       instructorName: "GUVI",
-      link: "https://www.guvi.in/share-certificate/287r366B11nJg514xP",
+      link: "https://www.guvi.in/share-certificate/z17O24957Iv0CJq17M",
     },
     {
       id: 6,
       studentName: "Ramsurya",
       courseName: "Front-End Developer",
       completionDate: "2025",
-      certificateId: "AI2024006",
+      certificateId: "NA",
       instructorName: "Edex Tech",
-      link: "https://www.guvi.in/share-certificate/287r366B11nJg514xP",
+      link: "https://drive.google.com/file/d/1CZRwWxw51DbqQyNUOQTYCQ97qtzABBqd/view?usp=sharing",
     }
   ];
 
