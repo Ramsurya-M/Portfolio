@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import IdCard from '@/components/ui/IdCard'; // Added import
 
 const About = () => {
   return (
@@ -21,7 +22,10 @@ const About = () => {
             open-source projects, or sharing knowledge with the developer community.
           </p>
         </div>
-        <div className="w-full md:w-1/2 flex justify-center mt-8 md:mt-0">
+        <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0"> {/* Added items-center */} 
+          {/* Replaced Image with IdCard */}
+          <IdCard />
+          {/* 
           <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden">
             <Image
               src="/Avatar.png"
@@ -32,6 +36,7 @@ const About = () => {
               sizes="(max-width: 640px) 12rem, (max-width: 768px) 16rem, 20rem"
             />
           </div>
+          */}
         </div>
       </div>
     </div>
