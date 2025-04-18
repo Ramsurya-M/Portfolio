@@ -30,7 +30,7 @@ const IdCard = () => {
 
       <div className="relative z-10 mt-auto">
         <h2 className="text-3xl font-bold mb-1">JOIN US</h2>
-        <p className="text-xs mb-4">Let's get it done</p>
+        <p className="text-xs mb-4">Let&apos;s get it done</p>
         <p className="text-xs font-light">Careers</p>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Navbar from '../Navbar'
-import Image from 'next/image'
+// Remove the unused Image import
 import { useTheme } from 'next-themes'
 import IdCard from '@/components/ui/IdCard'
 
@@ -37,7 +37,7 @@ const About = () => {
                   <p className="text-lg leading-relaxed">
                     I am a passionate software developer with an insatiable curiosity for modern web technologies.
                     My journey in tech is a continuous adventure, driven by the thrill of solving complex problems
-                    and creating solutions that make a difference in people's lives.
+                    and creating solutions that make a difference in people&apos;s lives.
                   </p>
                 </section>
                 
@@ -69,8 +69,8 @@ const About = () => {
                   </div>
                   <p className="text-lg leading-relaxed">
                     In this ever-evolving tech landscape, I thrive on continuous learning and growth.
-                    I'm committed to mastering new technologies and best practices, always pushing the
-                    boundaries of what's possible.
+                    I&apos;m committed to mastering new technologies and best practices, always pushing the
+                    boundaries of what&apos;s possible.
                   </p>
                 </section>
               </div>

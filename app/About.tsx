@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import IdCard from '@/components/ui/IdCard'; // Added import
+// Remove the unused Image import
+import IdCard from '@/components/ui/IdCard';
 
 const About = () => {
   return (
@@ -25,19 +25,7 @@ const About = () => {
         <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0"> {/* Added items-center */} 
           {/* Replaced Image with IdCard */}
           <IdCard />
-          {/* 
-          <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden">
-            <Image
-              src="/Avatar.png"
-              alt="Profile Picture"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-              sizes="(max-width: 640px) 12rem, (max-width: 768px) 16rem, 20rem"
-            />
-          </div>
-          */}
-        </div>
+            </div>
       </div>
     </div>
   )

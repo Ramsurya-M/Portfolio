@@ -6,7 +6,7 @@ import "./globals.css";
 const sourceCodePro = Source_Code_Pro({
   subsets: ['latin'],
   variable: '--font-source-code-pro',
-  weight: ['400', '700'] // Include the weights you need
+  weight: ['400', '700']
 })
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sourceCodePro.variable}`}>
       <body className="font-mono">
         <ThemeProvider
           attribute="class"
