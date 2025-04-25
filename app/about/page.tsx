@@ -50,7 +50,7 @@ const About = () => {
               Ramsurya
             </h1>
             <p className={`text-lg md:text-xl max-w-3xl mx-auto lg:mx-0 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              A Front-End Developer driven by a passion for creating elegant, efficient, and user-friendly web solutions. Let's explore my approach, skills, and journey.
+              A Front-End Developer driven by a passion for creating elegant, efficient, and user-friendly web solutions. Let&apos;s explore my approach, skills, and journey.
             </p>
           </div>
           {/* ID Card (Right on lg, Top on sm) */}
