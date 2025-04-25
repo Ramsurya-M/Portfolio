@@ -5,7 +5,6 @@ import Footer from './Footer'
 import { SparklesText } from '@/components/magicui/sparkles-text'
 import "./page.css"
 import Contact from './Contact'
-import Certificate from './Certificate'
 import About from './About'
 import LogoCarousel from './Carousal'
 import SkillsPage from './Skill'
@@ -20,7 +19,6 @@ export default function Home() {
       <About/>
       <SkillsPage/>
       <Resume/>
-      <Certificate/>
       <SparklesText className='text-center spark' text=" Made with ❤️ by Ramsurya" />
       <Contact/>
       <Footer/>

@@ -1,89 +1,145 @@
 ﻿'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '../Navbar'
-// Remove the unused Image import
 import { useTheme } from 'next-themes'
-import IdCard from '@/components/ui/IdCard'
+import IdCard from '@/components/ui/IdCard'; // Import the IdCard component
+// Import icons if needed, e.g., from react-icons
+// import { FaReact, FaCode, FaLightbulb } from 'react-icons/fa'; 
 
 const About = () => {
   const { theme } = useTheme()
+  const [isCardVisible, setIsCardVisible] = useState(false); // Keep state
+  
+  // Keep useEffect to trigger animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsCardVisible(true);
+    }, 100); 
+    return () => clearTimeout(timer); 
+  }, []); 
+
+  // Define skill categories and skills
+  const skillCategories = [
+    { 
+      title: "Frontend", 
+      skills: ["React", "TypeScript", "TailwindCSS", "HTML5", "CSS3"],
+      // icon: FaReact 
+    },
+    { 
+      title: "Tools & Concepts", 
+      skills: ["Git", "GitHub", "VS Code", "Sublime", "npm", "Node.js","Trae", "Next.js"],
+      // icon: FaLightbulb 
+    },
+  ];
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-[#0f0a05]' : 'bg-[#fff9f0]'}`}>
+    <div id='page1' className={`min-h-screen ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
       <Navbar />
-      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-grid-orange-900/[0.03]' : 'bg-grid-orange-900/[0.02]'}`} />
+      {/* Adjusted background grid for new gradient background */}
+      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-grid-purple-900/[0.05]' : 'bg-grid-amber-900/[0.03]'}`} />
       
-      <main className="container relative mx-auto px-4 py-20">
-        <div className="flex flex-col lg:flex-row gap-12 items-start">
-          {/* Content on left */}
-          <div className="lg:w-2/3">
-            <h1 className={`text-7xl font-bold mb-8 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600'} [text-shadow:_0_0_20px_rgb(245_158_11_/_0.3)] animate-fade-in-up animate-delay-100`}>
-              About Me
+      {/* Main container */}
+      <main className="container relative mx-auto px-4 py-24 md:py-32 z-10 space-y-16 md:space-y-24">
+        
+        {/* Top Section: Hero Text + ID Card - Added flex-col-reverse */}
+        <section className="flex flex-col-reverse lg:flex-row gap-12 lg:gap-16 items-center"> {/* Changed flex-col to flex-col-reverse */}
+          {/* Hero Text (Left on lg, Bottom on sm) */}
+          <div className="lg:w-2/3 text-center lg:text-left">
+            <h1 className={`text-4xl md:text-6xl font-bold mb-4 ${theme === 'dark' ? 'text-orange-400' : 'text-red'} leading-tight`}>
+              Ramsurya
             </h1>
-            <div className={`h-1 w-40 ${theme === 'dark' ? 'bg-gradient-to-r from-orange-500 to-amber-600' : 'bg-gradient-to-r from-orange-400 to-amber-500'} rounded-full mb-12 animate-scale-in`}></div>
-            
-            <div className={`${theme === 'dark' ? 'bg-black/40' : 'bg-white/90'} rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.2)] p-12 backdrop-blur-xl border ${theme === 'dark' ? 'border-amber-500/30' : 'border-amber-400/30'} animate-fade-in-up animate-delay-200`}>
-              <div className="space-y-12">
-                <section className={`p-8 rounded-2xl transition-all duration-500 ${theme === 'dark' ? 'hover:bg-gradient-to-br from-black/70 via-gray-900/70 to-black/70' : 'hover:bg-gradient-to-br from-white via-amber-50/90 to-white'} hover:shadow-[0_0_40px_rgba(245,158,11,0.25)] animate-fade-in-up animate-delay-300`}>
-                  <div className="flex items-center mb-6">
-                    <div className={`w-12 h-12 rounded-full ${theme === 'dark' ? 'bg-amber-500/20' : 'bg-amber-400/20'} flex items-center justify-center mr-4`}>
-                      <span className="text-2xl">👨‍💻</span>
-                    </div>
-                    <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-amber-400' : 'text-amber-600'}`}>
-                      Who I Am
-                    </h2>
-                  </div>
-                  <p className="text-lg leading-relaxed">
-                    I am a passionate software developer with an insatiable curiosity for modern web technologies.
-                    My journey in tech is a continuous adventure, driven by the thrill of solving complex problems
-                    and creating solutions that make a difference in people&apos;s lives.
-                  </p>
-                </section>
-                
-                {/* Similar structure for "What I Do" and "My Goals" sections */}
-                <section className={`p-8 rounded-2xl transition-all duration-500 ${theme === 'dark' ? 'hover:bg-gradient-to-br from-black/70 via-gray-900/70 to-black/70' : 'hover:bg-gradient-to-br from-white via-blue-50/90 to-white'} hover:shadow-[0_0_40px_rgba(6,182,212,0.25)]`}>
-                  <div className="flex items-center mb-6">
-                    <div className={`w-12 h-12 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'} flex items-center justify-center mr-4`}>
-                      <span className="text-2xl">🚀</span>
-                    </div>
-                    <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
-                      What I Do
-                    </h2>
-                  </div>
-                  <p className="text-lg leading-relaxed">
-                    I craft elegant and responsive web applications using cutting-edge technologies
-                    like React, Next.js, and TypeScript. My passion lies in architecting clean, efficient,
-                    and scalable solutions that deliver exceptional user experiences.
-                  </p>
-                </section>
+            <p className={`text-lg md:text-xl max-w-3xl mx-auto lg:mx-0 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              A Front-End Developer driven by a passion for creating elegant, efficient, and user-friendly web solutions. Let's explore my approach, skills, and journey.
+            </p>
+          </div>
+          {/* ID Card (Right on lg, Top on sm) */}
+          <div className={`lg:w-1/4 flex justify-center lg:justify-end items-center 
+                         transition-all duration-1000 ease-out 
+                         ${isCardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'} `}
+          >
+             <IdCard />
+          </div>
+        </section>
 
-                <section className={`p-8 rounded-2xl transition-all duration-500 ${theme === 'dark' ? 'hover:bg-gradient-to-br from-black/70 via-gray-900/70 to-black/70' : 'hover:bg-gradient-to-br from-white via-blue-50/90 to-white'} hover:shadow-[0_0_40px_rgba(6,182,212,0.25)]`}>
-                  <div className="flex items-center mb-6">
-                    <div className={`w-12 h-12 rounded-full ${theme === 'dark' ? 'bg-cyan-500/20' : 'bg-cyan-400/20'} flex items-center justify-center mr-4`}>
-                      <span className="text-2xl">🎯</span>
-                    </div>
-                    <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
-                      My Goals
-                    </h2>
-                  </div>
-                  <p className="text-lg leading-relaxed">
-                    In this ever-evolving tech landscape, I thrive on continuous learning and growth.
-                    I&apos;m committed to mastering new technologies and best practices, always pushing the
-                    boundaries of what&apos;s possible.
-                  </p>
-                </section>
-              </div>
+        {/* Content Sections Below */}
+
+        {/* Core Values / Philosophy Section */}
+        <section> 
+          <h2 className={`text-3xl font-bold text-center mb-10 ${theme === 'dark' ? 'text-purple-400' : 'text-amber-700'}`}>Guiding Principles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"> {/* Centered grid */}
+            {/* Value 1 */}
+            <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-800/60 border border-purple-500/30' : 'bg-white/70 border border-amber-300/50'} backdrop-blur-sm shadow-lg text-center hover:scale-105 transition-transform duration-300`}>
+              {/* Optional Icon */}
+              <h3 className={`text-xl font-semibold mb-3 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-800'}`}>Code Craftsmanship</h3>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Writing clean, maintainable, and performant code is fundamental to my process.</p>
+            </div>
+            {/* Value 2 */}
+            <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-800/60 border border-blue-500/30' : 'bg-white/70 border border-blue-300/50'} backdrop-blur-sm shadow-lg text-center hover:scale-105 transition-transform duration-300`}>
+              {/* Optional Icon */}
+              <h3 className={`text-xl font-semibold mb-3 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-800'}`}>User Experience Focus</h3>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Designing intuitive interfaces that provide a seamless and enjoyable journey.</p>
+            </div>
+            {/* Value 3 */}
+            <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-800/60 border border-green-500/30' : 'bg-white/70 border border-green-300/50'} backdrop-blur-sm shadow-lg text-center hover:scale-105 transition-transform duration-300`}>
+              {/* Optional Icon */}
+              <h3 className={`text-xl font-semibold mb-3 ${theme === 'dark' ? 'text-green-300' : 'text-green-800'}`}>Lifelong Learning</h3>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Embracing new technologies and methodologies to stay ahead and deliver cutting-edge solutions.</p>
             </div>
           </div>
+        </section>
 
-          {/* Profile on right */}
-          <div className="lg:w-1/3 lg:sticky lg:top-28">
-            <div className="relative w-full aspect-square max-w-xs mx-auto group">
-                <IdCard />
+        {/* Skills Showcase Section */}
+        <section> 
+          <h2 className={`text-3xl font-bold text-center mb-10 ${theme === 'dark' ? 'text-purple-400' : 'text-amber-700'}`}>Tech Stack</h2>
+          <div className={`p-8 rounded-2xl ${theme === 'dark' ? 'bg-black/30 border border-gray-700/50' : 'bg-white/60 border border-gray-300/50'} backdrop-blur-md shadow-xl max-w-5xl mx-auto`}> {/* Centered container */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {skillCategories.map((category) => (
+                <div key={category.title}>
+                  <h3 className={`text-xl font-semibold mb-4 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                    {/* {category.icon && <category.icon className="text-purple-400" />} */}
+                    {category.title}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {category.skills.map((skill) => (
+                      <span key={skill} className={`px-3 py-1 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-amber-100 text-amber-800'}`}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* Journey/Experience Snippet */}
+        <section className="text-center max-w-4xl mx-auto"> {/* Centered text block */}
+          <h2 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-purple-400' : 'text-amber-700'}`}>My Developer Journey</h2>
+          <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}> 
+            For over one years, I&apos;ve navigated the dynamic world of web development... {/* Shortened for brevity */}
+          </p>
+          {/* Add links to projects or contact if desired */}
+        </section>
+          
+        {/* Social Media Section */}
+        <section className="text-center max-w-4xl mx-auto">
+          <h2 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-purple-400' : 'text-amber-700'}`}>Connect With Me</h2>
+          <div className="flex justify-center items-center gap-6 md:gap-8">
+            {/* Replace '#' with your actual profile links and consider using icons */}
+            <a href="https://www.linkedin.com/in/ramsurya2614/" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} transition-colors`}>
+              LinkedIn {/* Replace with <FaLinkedin /> icon if desired */}
+            </a>
+            <a href="https://github.com/Ramsurya-M" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-700 hover:text-gray-900'} transition-colors`}>
+              GitHub {/* Replace with <FaGithub /> icon if desired */}
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-sky-400 hover:text-sky-300' : 'text-sky-600 hover:text-sky-800'} transition-colors`}>
+              Instagram {/* Replace with <FaTwitter /> icon if desired */}
+            </a>
+            {/* Add more social links as needed */}
+          </div>
+        </section>
+
       </main>
     </div>
   )
