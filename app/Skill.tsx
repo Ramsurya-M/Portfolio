@@ -1,7 +1,7 @@
 'use client'; // Add 'use client' directive for hooks
 
 import React from 'react';
-import { useTheme } from 'next-themes'; // Import useTheme
+// import { useTheme } from 'next-themes'; // Removed unused import
 
 const SkillsPage = () => {
   // No need to use theme for styling

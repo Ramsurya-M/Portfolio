@@ -1,10 +1,10 @@
 'use client'
 import React from 'react';
-import { useTheme } from 'next-themes'; // Import useTheme
+// import { useTheme } from 'next-themes'; // Removed unused import
 import IdCard from '@/components/ui/IdCard';
 
 const About = () => {
-  const { theme } = useTheme(); // Get the current theme
+  // const { theme } = useTheme(); // Removed unused variable
 
   return (
     <div className="min-h-screen p-4 sm:p-6 md:p-8 flex items-center bg-white text-gray-800 dark:bg-black dark:text-white">
