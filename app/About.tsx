@@ -7,12 +7,10 @@ const About = () => {
   const { theme } = useTheme(); // Get the current theme
 
   return (
-    // Apply conditional background color based on theme
-    <div className={`min-h-screen p-4 sm:p-6 md:p-8 flex items-center ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-800'}`}>
+    <div className="min-h-screen p-4 sm:p-6 md:p-8 flex items-center bg-white text-gray-800 dark:bg-black dark:text-white">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
         <div className="w-full md:w-1/2 text-center md:text-left">
-          {/* Apply conditional text color for heading */}
-          <h1 className={`text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>About Me</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 text-gray-900 dark:text-white">About Me</h1>
           {/* Paragraphs will inherit text color from the main div */}
           <p className="text-base sm:text-lg mb-3 sm:mb-4 px-4 md:px-0">
             Hello! I&apos;m a passionate developer with a keen interest in building innovative web solutions.
