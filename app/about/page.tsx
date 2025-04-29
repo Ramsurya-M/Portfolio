@@ -133,7 +133,7 @@ const About = () => {
             <a href="https://github.com/Ramsurya-M" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-700 hover:text-gray-900'} transition-colors`}>
               GitHub {/* Replace with <FaGithub /> icon if desired */}
             </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-sky-400 hover:text-sky-300' : 'text-sky-600 hover:text-sky-800'} transition-colors`}>
+            <a href="https://instagram.com/surya_26012k" target="_blank" rel="noopener noreferrer" className={`text-lg ${theme === 'dark' ? 'text-sky-400 hover:text-sky-300' : 'text-sky-600 hover:text-sky-800'} transition-colors`}>
               Instagram {/* Replace with <FaTwitter /> icon if desired */}
             </a>
             {/* Add more social links as needed */}
