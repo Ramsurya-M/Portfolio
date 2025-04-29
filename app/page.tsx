@@ -9,10 +9,12 @@ import About from './About'
 import LogoCarousel from './Carousal'
 import SkillsPage from './Skill'
 import Resume from './Resume'
+import { SmoothCursor } from '@/components/ui/smooth-cursor'
 
 export default function Home() {
   return (
     <main>
+      <SmoothCursor />
       <Navbar/>
       <BackgroundLinesDemo/>
       <LogoCarousel/>

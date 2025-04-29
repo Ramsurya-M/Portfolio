@@ -6,6 +6,7 @@ import { Moon, Sun, Menu, X } from "lucide-react"; // Import Menu and X icons
 import "./Navbar.css";
 import { AvatarDemo } from "@/components/ui/AvatarDemo";
 import Link from "next/link";
+import { SmoothCursor } from "@/components/ui/smooth-cursor";
 
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
@@ -35,6 +36,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed w-full border-b border-gray-200 bg-white/50 dark:border-gray-800 dark:bg-gray-950/50 backdrop-blur-xl z-50">
+      <SmoothCursor/>
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Left side: Theme Toggle */}

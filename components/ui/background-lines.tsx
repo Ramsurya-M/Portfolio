@@ -22,7 +22,14 @@ export const BackgroundLines = ({
       )}
     >
       <SVG svgOptions={svgOptions} />
-      {children}
+      <div className="relative z-10 w-full h-full flex items-center justify-center">
+        <div className="text-lg md:text-2xl lg:text-4xl font-bold text-center px-2 md:px-0">
+          <span className="text-lg md:text-lg lg:text-2xl">
+            {/* Responsive text size for mobile */}
+            {children}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

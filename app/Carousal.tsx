@@ -35,6 +35,9 @@ const Carousal = () => {
               <Image src="/logo/vscode.svg" alt="Brand 8" width={48} height={48} className="h-12" />
             </li>
             <li>
+              <Image src="/logo/traeai.svg" alt="Brand 9" width={48} height={48} className="h-12" />
+            </li>
+            <li>
               <Image src="/logo/vite.svg" alt="Brand 9" width={48} height={48} className="h-12" />
             </li>
             <li>
