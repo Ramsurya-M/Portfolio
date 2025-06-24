@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navbar from '../Navbar'; // Import Navbar
+import Footer from '../Footer';
 import { useTheme } from 'next-themes'; // Import useTheme
 // import Image from 'next/image'; // Removed unused Image import
 
@@ -100,6 +101,7 @@ export default function ProjectsPage() {
           ))}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

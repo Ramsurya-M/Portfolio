@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import Navbar from '../Navbar';
+import Footer from '../Footer';
 import { SparklesText } from '@/components/magicui/sparkles-text';
 import ContactForm from '../Contact'; // Assuming Contact.tsx holds the form logic now
 import DoodleSvg from '@/public/Doodle.svg'; // Import the SVG
@@ -79,10 +80,7 @@ export default function ContactPage() {
         </div>
       </main>
 
-      {/* Footer Section */}
-      <footer className="py-10 text-center relative z-10">
-        <SparklesText className='spark' text=" Made with ❤️ by Ramsurya" />
-      </footer>
+      <Footer />
     </div>
   );
 }

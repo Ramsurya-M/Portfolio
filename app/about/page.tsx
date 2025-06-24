@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Navbar from '../Navbar'
+import Footer from '../Footer'
 import { useTheme } from 'next-themes'
 import IdCard from '@/components/ui/IdCard'; // Import the IdCard component
 // Import icons if needed, e.g., from react-icons
@@ -141,6 +142,7 @@ const About = () => {
         </section>
 
       </main>
+      <Footer />
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navbar from '../Navbar'; // Import Navbar
+import Footer from '../Footer';
 import { useTheme } from 'next-themes'; // Import useTheme for dark/light mode
 import { Download } from 'lucide-react'; // Import Download icon
 
@@ -55,8 +56,7 @@ export default function ResumePage() {
 
       </main>
 
-      {/* Footer can be added here if needed, similar to other pages */}
-      {/* <footer className="py-6 text-center relative z-10"> ... </footer> */}
+      <Footer />
     </div>
   );
 }

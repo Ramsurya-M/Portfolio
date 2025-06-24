@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navbar from '../Navbar'; // Import Navbar
+import Footer from '../Footer';
 import { useTheme } from 'next-themes'; // Import useTheme for dark/light mode
 import Image from 'next/image'; // Import Image for certificate visuals
 // import { verify } from 'crypto'; // Removed unused import
@@ -119,6 +120,7 @@ export default function CertificatesPage() {
           ))}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
