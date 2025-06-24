@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import { motion, useScroll, useTransform } from "motion/react";
@@ -14,7 +15,13 @@ const data: TimelineEntry[] = [
     title: "2025 – Present",
     content: (
       <div>
-        <img src="/logo/Solartis.png" alt="Solartis Logo" className="h-12 w-32 md:h-20 md:w-60 mb-4 ml-0" />
+        <Image 
+          src="/logo/Solartis.png" 
+          alt="Solartis Logo" 
+          width={240}
+          height={80}
+          className="h-12 w-32 md:h-20 md:w-60 mb-4 ml-0" 
+        />
         <h4 className="text-2xl font-bold mb-2">Operations Associate – Solartis LLC</h4>
         <p className="mb-2 text-xs md:text-sm font-normal text-neutral-800 dark:text-neutral-200">
           <strong className="text-lg font-bold">About the Role:</strong> As an Operations Associate at Solartis LLC, you are a vital part of the team that ensures the smooth execution of insurance-related processes and back-office support tasks. You help maintain accuracy, efficiency, and timeliness in handling insurance data, policy documentation, and customer deliverables.
@@ -60,14 +67,14 @@ const data: TimelineEntry[] = [
     title: "2021 – 2024",
     content: (
       <div>
-        <div className="w-full flex justify-center mb-4">
-          <img
-            src="/logo/college.png"
-            alt="College Logo"
-            className="h-24 w-auto md:h-32 lg:h-48 max-w-full object-contain rounded-lg"
-            style={{ maxWidth: "400px" }}
-          />
-        </div>
+        <Image
+          src="/logo/college.png"
+          alt="College Logo"
+          width={384}
+          height={192}
+          className="h-24 w-auto md:h-32 lg:h-48 max-w-full object-contain rounded-lg"
+          style={{ maxWidth: "400px" }}
+        />
         <h4 className="text-2xl font-bold mb-2 text-neutral-900 dark:text-neutral-100">
           Graduate Student – Yadava College of Arts and Science (Autonomous)
         </h4>

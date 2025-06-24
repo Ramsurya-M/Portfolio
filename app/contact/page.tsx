@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import Navbar from '../Navbar';
 import Footer from '../Footer';
-import { SparklesText } from '@/components/magicui/sparkles-text';
 import ContactForm from '../Contact'; // Assuming Contact.tsx holds the form logic now
 import DoodleSvg from '@/public/Doodle.svg'; // Import the SVG
 
@@ -79,7 +78,6 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
