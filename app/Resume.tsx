@@ -7,7 +7,7 @@ const Resume = () => {
   return (
     <section className="min-h-screen w-full py-10 px-4 sm:px-8 md:px-16 dark:bg-black-900 transition-colors duration-200">
       <div className="w-full mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 dark:text-white">Resume</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 dark:text-white">Qualification and skills</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Profile Photo */}
@@ -20,7 +20,7 @@ const Resume = () => {
             >
 <a href="/Resume1.jpg" target="_blank" rel="noopener noreferrer">
   <Image
-    src="/Resume1.jpg"
+    src="/doodle2.svg"
     alt="Resume Photo"
     fill
     className="object-contain"
