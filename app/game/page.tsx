@@ -25,7 +25,7 @@ const MIN_VEL = 0.02;
 const POWER_MULTIPLIER = 0.11;
 const MAX_POWER = 220;
 
-/* ---------------- Types ---------------- */
+/* ---------------- Types --------------- */
 type Vec = { x: number; y: number };
 type CoinKind = "coin" | "queen" | "striker";
 type Coin = {
