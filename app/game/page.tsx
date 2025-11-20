@@ -730,11 +730,6 @@ export default function GamePage() {
       return next as 1 | 2;
     });
   }
-  function handleEndGame() {
-    if (scores[1] > scores[2]) setMessage("Player 1 wins!");
-    else if (scores[2] > scores[1]) setMessage("Player 2 wins!");
-    else setMessage("Tie!");
-  }
 
   /* ---------- periodic update for counts ---------- */
   useEffect(() => {
@@ -774,7 +769,7 @@ export default function GamePage() {
           <div style={{ marginTop: 12, color: "#94a3b8" }}>
             <div>Black & white coins (9 each) + Red queen</div>
             <div style={{ marginTop: 6 }}>Position striker horizontally, then pull vertically to shoot.</div>
-            <div style={{ marginTop: 6 }}>After a completed shot, striker switches to the other's zone.</div>
+            <div style={{ marginTop: 6 }}>After a completed shot, striker switches to the other’s zone.</div>
           </div>
         </div>
 
