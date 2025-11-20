@@ -13,11 +13,11 @@ import React, { useEffect, useRef, useState } from "react";
 
 /* ---------------- Config ---------------- */
 const BOARD_TEXTURE = "/mnt/data/0c55eea9-4050-494e-acfa-b65e6e8ebb6b.png";
-const LOGICAL_SIZE = 1000; // larger logical resolution to increase "board zone"
-const POCKET_RADIUS = 39;
-const COIN_RADIUS = 22; // increased coin radius
-const STRIKER_RADIUS = 27; // increased striker radius
-const STRIKER_AREA_HEIGHT = 171; // taller striker zone
+const LOGICAL_SIZE = 1200; // larger logical resolution to increase "board zone"
+const POCKET_RADIUS = 47;
+const COIN_RADIUS = 28; // increased coin radius
+const STRIKER_RADIUS = 34; // increased striker radius
+const STRIKER_AREA_HEIGHT = 205; // taller striker zone
 const FRICTION = 0.993;
 const WALL_RESTITUTION = 0.9;
 const COIN_RESTITUTION = 0.985;
@@ -46,7 +46,7 @@ const len = (dx: number, dy: number) => Math.sqrt(dx * dx + dy * dy);
 const dist = (a: Vec, b: Vec) => len(a.x - b.x, a.y - b.y);
 
 /* ---------------- Component ---------------- */
-export default function GamePage(): JSX.Element {
+export default function GamePage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -89,7 +89,7 @@ export default function GamePage(): JSX.Element {
   }
 
   function getStrikerYForPlayer(player: 1 | 2) {
-    return player === 1 ? LOGICAL_SIZE - 146 : 146;
+    return player === 1 ? LOGICAL_SIZE - 175 : 175;
   }
 
   /* ---------- reset table ---------- */
@@ -193,17 +193,18 @@ export default function GamePage(): JSX.Element {
   function resizeCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const parent = canvas.parentElement;
-    if (!parent) return;
-    const rect = parent.getBoundingClientRect();
-    const size = Math.min(rect.width, window.innerHeight - 160, 1000);
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-    canvas.style.width = `${size}px`;
-    canvas.style.height = `${size}px`;
-    canvas.width = Math.round(size * dpr);
-    canvas.height = Math.round(size * dpr);
+    const scale = Math.min(window.innerWidth / LOGICAL_SIZE, window.innerHeight / LOGICAL_SIZE);
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
     const ctx = canvas.getContext("2d");
-    if (ctx) ctx.setTransform((size * dpr) / LOGICAL_SIZE, 0, 0, (size * dpr) / LOGICAL_SIZE, 0, 0);
+    if (ctx) {
+      const translateX = (window.innerWidth - LOGICAL_SIZE * scale) / 2 * dpr;
+      const translateY = (window.innerHeight - LOGICAL_SIZE * scale) / 2 * dpr;
+      ctx.setTransform(scale * dpr, 0, 0, scale * dpr, translateX, translateY);
+    }
   }
 
   /* ---------- main loop ---------- */
@@ -247,7 +248,7 @@ export default function GamePage(): JSX.Element {
     // walls bounce
     const W = LOGICAL_SIZE;
     const H = LOGICAL_SIZE;
-    const margin = 22; // smaller margin to enlarge play area
+    const margin = 28; // smaller margin to enlarge play area
     const bounce = (c: Coin) => {
       if (c.pocketed) return;
       if (c.x - c.r < margin) {
@@ -372,7 +373,7 @@ export default function GamePage(): JSX.Element {
           sref.x = LOGICAL_SIZE / 2;
           sref.y = getStrikerYForPlayer(next);
         }
-        setMessage(`Motion stopped. Player ${next}'s turn — striker moved to opposite side.`);
+        setMessage(`Motion stopped. Player ${next} turn — striker moved to opposite side.`);
         return next as 1 | 2;
       });
     }
@@ -392,10 +393,11 @@ export default function GamePage(): JSX.Element {
     if (!canvas || !strikerRef.current) return;
 
     const toLogical = (clientX: number, clientY: number) => {
-      const rect = canvas.getBoundingClientRect();
-      const sizePx = rect.width;
-      const x = ((clientX - rect.left) / sizePx) * LOGICAL_SIZE;
-      const y = ((clientY - rect.top) / sizePx) * LOGICAL_SIZE;
+      const scale = Math.min(window.innerWidth / LOGICAL_SIZE, window.innerHeight / LOGICAL_SIZE);
+      const boardLeft = (window.innerWidth - LOGICAL_SIZE * scale) / 2;
+      const boardTop = (window.innerHeight - LOGICAL_SIZE * scale) / 2;
+      const x = (clientX - boardLeft) / scale;
+      const y = (clientY - boardTop) / scale;
       return { x, y };
     };
 
@@ -515,20 +517,20 @@ export default function GamePage(): JSX.Element {
       ctx.drawImage(img, 0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
     } else {
       const g = ctx.createLinearGradient(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
-      g.addColorStop(0, "#f3d6b2");
-      g.addColorStop(1, "#d6aa79");
+      g.addColorStop(0, "#4a7c59");
+      g.addColorStop(1, "#2d5a27");
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
     }
 
     // outer rim
-    ctx.lineWidth = 20;
-    ctx.strokeStyle = "#6b3e22";
+    ctx.lineWidth = 24;
+    ctx.strokeStyle = "#8b4513";
     ctx.strokeRect(12, 12, LOGICAL_SIZE - 24, LOGICAL_SIZE - 24);
 
     // inner play area (bigger playable area due to smaller margins)
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(0,0,0,0.06)";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(0,0,0,0.15)";
     ctx.strokeRect(44, 44, LOGICAL_SIZE - 88, LOGICAL_SIZE - 88);
 
     // pockets
@@ -550,7 +552,7 @@ export default function GamePage(): JSX.Element {
 
     // striker zones shading (top & bottom)
     ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.06)";
+    ctx.fillStyle = "rgba(0,0,0,0.12)";
     const zoneHeight = STRIKER_AREA_HEIGHT - 20;
     ctx.fillRect(59, 44, LOGICAL_SIZE - 118, zoneHeight);
     ctx.fillRect(59, LOGICAL_SIZE - 44 - zoneHeight, LOGICAL_SIZE - 118, zoneHeight);
@@ -558,7 +560,7 @@ export default function GamePage(): JSX.Element {
 
     // decorative corner circles (reference style)
     ctx.save();
-    ctx.fillStyle = "#b0402b";
+    ctx.fillStyle = "#a0522d";
     const corners = [
       { x: 127, y: 107 },
       { x: LOGICAL_SIZE - 127, y: 107 },
@@ -567,10 +569,10 @@ export default function GamePage(): JSX.Element {
     ];
     for (const c of corners) {
       ctx.beginPath();
-      ctx.arc(c.x, c.y, 16, 0, Math.PI * 2);
+      ctx.arc(c.x, c.y, 18, 0, Math.PI * 2);
       ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "#2b2b2b";
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#654321";
       ctx.stroke();
     }
     ctx.restore();
@@ -582,14 +584,31 @@ export default function GamePage(): JSX.Element {
       ctx.save();
       // shadow
       ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.09)";
-      ctx.ellipse(c.x + 4, c.y + 6, c.r * 0.95, c.r * 0.45, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      ctx.ellipse(c.x + 5, c.y + 8, c.r * 1.0, c.r * 0.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // face
       ctx.beginPath();
-      ctx.fillStyle = c.color;
+      const grad = ctx.createRadialGradient(c.x - c.r * 0.3, c.y - c.r * 0.3, 0, c.x, c.y, c.r);
+      if (c.color === "#ffffff") {
+        grad.addColorStop(0, "#ffffff");
+        grad.addColorStop(1, "#cccccc");
+      } else if (c.color === "#0b0b0b") {
+        grad.addColorStop(0, "#555555");
+        grad.addColorStop(1, "#000000");
+      } else { // queen
+        grad.addColorStop(0, "#ff6666");
+        grad.addColorStop(1, "#cc0000");
+      }
+      ctx.fillStyle = grad;
       ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // highlight
+      ctx.beginPath();
+      ctx.arc(c.x - c.r * 0.4, c.y - c.r * 0.4, c.r * 0.25, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
       ctx.fill();
 
       // rim
@@ -600,10 +619,13 @@ export default function GamePage(): JSX.Element {
       // queen label
       if (c.kind === "queen") {
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 14px system-ui";
+        ctx.font = "bold 16px system-ui";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Q", c.x, c.y);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.strokeText("♛", c.x, c.y);
+        ctx.fillText("♛", c.x, c.y);
       }
       ctx.restore();
     }
@@ -614,17 +636,23 @@ export default function GamePage(): JSX.Element {
       ctx.save();
       // shadow
       ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.10)";
-      ctx.ellipse(s.x + 4, s.y + 6, s.r * 1.0, s.r * 0.5, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.ellipse(s.x + 5, s.y + 8, s.r * 1.1, s.r * 0.55, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // body with subtle gradient
-      const g = ctx.createLinearGradient(s.x - s.r, s.y - s.r, s.x + s.r, s.y + s.r);
+      const g = ctx.createRadialGradient(s.x - s.r * 0.3, s.y - s.r * 0.3, 0, s.x, s.y, s.r);
       g.addColorStop(0, "#ffffff");
       g.addColorStop(1, "#dbe8ff");
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // highlight
+      ctx.beginPath();
+      ctx.arc(s.x - s.r * 0.4, s.y - s.r * 0.4, s.r * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
       ctx.fill();
 
       // center dot
@@ -698,7 +726,7 @@ export default function GamePage(): JSX.Element {
         s.vx = 0;
         s.vy = 0;
       }
-      setMessage(`Forced pass. Player ${next}'s turn.`);
+      setMessage(`Forced pass. Player ${next} turn.`);
       return next as 1 | 2;
     });
   }
@@ -716,11 +744,11 @@ export default function GamePage(): JSX.Element {
 
   /* ---------- JSX ---------- */
   return (
-    <div style={{ minHeight: "100vh", padding: 20, background: "#071427", color: "#e6edf3", boxSizing: "border-box" }}>
-      <div style={{ maxWidth: 1250, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 18 }}>
-        {/* Left controls */}
-        <div style={{ background: "#071427", padding: 16, borderRadius: 12 }}>
-          <h2 style={{ margin: 0 }}>Carrom — Upgraded</h2>
+    <div style={{ height: "100vh", width: "100vw", background: "#071427", color: "#e6edf3", boxSizing: "border-box", position: "relative" }}>
+      <div style={{ height: "100%", width: "100%", position: "relative" }}>
+        {/* Overlay controls top */}
+        <div style={{ position: "absolute", top: 20, right: 20, background: "rgba(7, 20, 39, 0.9)", padding: 16, borderRadius: 12, zIndex: 10, maxWidth: 300 }}>
+          <h2 style={{ margin: 0 }}>Carrom — Full Screen</h2>
           <p style={{ color: "#94a3b8" }}>{message}</p>
 
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
@@ -746,24 +774,12 @@ export default function GamePage(): JSX.Element {
           <div style={{ marginTop: 12, color: "#94a3b8" }}>
             <div>Black & white coins (9 each) + Red queen</div>
             <div style={{ marginTop: 6 }}>Position striker horizontally, then pull vertically to shoot.</div>
-            <div style={{ marginTop: 6 }}>After a completed shot, striker switches to the other player's zone.</div>
+            <div style={{ marginTop: 6 }}>After a completed shot, striker switches to the other's zone.</div>
           </div>
         </div>
 
-        {/* Center board */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ width: "100%", maxWidth: 1000, background: "#071427", padding: 12, borderRadius: 12 }}>
-            <div style={{ aspectRatio: "1/1", width: "100%" }}>
-              <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block", borderRadius: 12 }} />
-            </div>
-            <div style={{ marginTop: 10, textAlign: "center", color: "#94a3b8" }}>
-              Striker zone shaded top & bottom. Drag horizontally to position; pull vertically to shoot.
-            </div>
-          </div>
-        </div>
-
-        {/* Right scoreboard */}
-        <div style={{ background: "#071427", padding: 16, borderRadius: 12 }}>
+        {/* Overlay scoreboard left */}
+        <div style={{ position: "absolute", bottom: 20, left: 20, background: "rgba(7, 20, 39, 0.9)", padding: 16, borderRadius: 12, zIndex: 10, maxWidth: 200 }}>
           <h3 style={{ margin: 0 }}>Scoreboard</h3>
 
           <div style={{ marginTop: 12, padding: 12, borderRadius: 8, background: currentPlayer === 1 ? "rgba(16,185,129,0.06)" : "transparent" }}>
@@ -777,16 +793,16 @@ export default function GamePage(): JSX.Element {
           </div>
 
           <div style={{ marginTop: 12, color: "#94a3b8" }}>
-            <div>Queen pocketed: {pocketedCounts.queen}</div>
-            <div>Total pocketed: {pocketedCounts.total}</div>
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <button onClick={handleEndGame} style={{ width: "100%", padding: 10, background: "#16a34a", color: "#fff", border: "none", borderRadius: 8 }}>
-              End & Winner
-            </button>
+            <div>Queen: {pocketedCounts.queen}</div>
+            <div>Total: {pocketedCounts.total}</div>
           </div>
         </div>
+
+        {/* Full screen board */}
+        <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+          <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+        </div>
+
       </div>
     </div>
   );
