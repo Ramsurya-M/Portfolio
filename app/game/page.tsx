@@ -493,11 +493,10 @@ export default function GamePage(): JSX.Element {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
 
-      canvas.removeEventListener("touchstart", onDown as any);
-      window.removeEventListener("touchmove", onMove as any);
-      window.removeEventListener("touchend", onUp as any);
+      canvas.removeEventListener("touchstart", onDown as EventListener);
+      window.removeEventListener("touchmove", onMove as EventListener);
+      window.removeEventListener("touchend", onUp as EventListener);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPlayer, isAnyMoving]);
 
   /* ---------- render ---------- */
