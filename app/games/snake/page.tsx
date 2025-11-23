@@ -11,7 +11,6 @@ const SnakeAndLadderGame = () => {
 
   // Game constants
   const BOARD_SIZE = 10
-  const TOTAL_SQUARES = 100
 
   // Snakes and Ladders positions
   const snakes: Record<number, number> = {
@@ -32,7 +31,6 @@ const SnakeAndLadderGame = () => {
   const [isRolling, setIsRolling] = useState<boolean>(false)
   const [gameStarted, setGameStarted] = useState<boolean>(false)
   const [winner, setWinner] = useState<number | null>(null)
-  const [animatingPlayer, setAnimatingPlayer] = useState<number | null>(null)
   const [message, setMessage] = useState<string>('')
 
   // Initialize players when numPlayers changes
@@ -41,7 +39,7 @@ const SnakeAndLadderGame = () => {
     setCurrentPlayer(0)
     setWinner(null)
     setMessage('')
-  }, [numPlayers])
+  }, [numPlayers, playerColors])
 
   // Roll dice
   const rollDice = () => {

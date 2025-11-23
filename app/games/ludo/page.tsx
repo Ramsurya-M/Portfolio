@@ -194,31 +194,25 @@ const LudoGame = () => {
 
   // Render board square
   const renderSquare = (row: number, col: number) => {
-    let squareType = 'path'
     let bgColor = theme === 'dark' ? 'bg-gray-100' : 'bg-gray-50'
     let playerHere = -1
     let pieceIndex = -1
 
-    // Determine square type and color
+    // Determine square color
     if (row >= 0 && row <= 5 && col >= 0 && col <= 5) {
       // Red home quadrant
-      squareType = 'home'
       bgColor = 'bg-red-300 dark:bg-red-700'
     } else if (row >= 0 && row <= 5 && col >= 9 && col <= 14) {
       // Blue home quadrant
-      squareType = 'home'
       bgColor = 'bg-blue-300 dark:bg-blue-700'
     } else if (row >= 9 && row <= 14 && col >= 0 && col <= 5) {
       // Yellow home quadrant
-      squareType = 'home'
       bgColor = 'bg-yellow-300 dark:bg-yellow-700'
     } else if (row >= 9 && row <= 14 && col >= 9 && col <= 14) {
       // Green home quadrant
-      squareType = 'home'
       bgColor = 'bg-green-300 dark:bg-green-700'
     } else if (row >= 6 && row <= 8 && col >= 6 && col <= 8) {
       // Center
-      squareType = 'center'
       bgColor = 'bg-gray-400 dark:bg-gray-600'
     } else if (
       // Main path (perimeter and cross)
@@ -227,7 +221,6 @@ const LudoGame = () => {
       (col === 6 && (row >= 0 && row <= 14)) || // left vertical
       (col === 8 && (row >= 0 && row <= 14))    // right vertical
     ) {
-      squareType = 'path'
       bgColor = theme === 'dark' ? 'bg-amber-100' : 'bg-amber-50'
     } else if (
       // Home columns
@@ -236,7 +229,6 @@ const LudoGame = () => {
       (col === 7 && row >= 9 && row <= 13) || // yellow home column
       (col === 7 && row >= 1 && row <= 5)    // green home column
     ) {
-      squareType = 'home-column'
       bgColor = theme === 'dark' ? 'bg-gray-200' : 'bg-gray-100'
     }
 
