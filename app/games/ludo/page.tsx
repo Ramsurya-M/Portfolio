@@ -11,7 +11,6 @@ const LudoGame = () => {
 
   // Ludo board is 15x15, but we'll represent it as positions
   const BOARD_SIZE = 15
-  const HOME_SIZE = 6 // Each home is 6x6
 
   // Player colors
   const playerColors = ['red', 'blue', 'yellow', 'green']
@@ -53,7 +52,7 @@ const LudoGame = () => {
     setCurrentPlayer(activeIndices[0])
     setWinner(null)
     setMessage('')
-  }, [numPlayers])
+  }, [numPlayers, playerColors])
 
   // Ludo board positions (simplified)
   // 0-51: main path, 52-57: red home, etc.
@@ -157,7 +156,6 @@ const LudoGame = () => {
         if (diceValue === 6) movable.push(idx)
       } else {
         // Check if can move
-        const newPos = (piece.position + diceValue) % 52
         // Simplified: can always move if not in home column or not overshooting
         movable.push(idx)
       }
