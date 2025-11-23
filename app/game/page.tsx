@@ -1,59 +1,28 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { io, Socket } from 'socket.io-client';
+import { useGameState } from './useGameState';
+import { integrateCoins, handleWalls, handleCollisions, checkPockets, isAnyMoving } from './physics';
+import { LOGICAL_SIZE, STRIKER_AREA_HEIGHT, COIN_RADIUS, STRIKER_RADIUS, POWER_MULTIPLIER, MAX_POWER } from './constants';
+import { clamp, len } from './utils';
+import GameBoard from './GameBoard';
+import GameUI from './GameUI';
+import Lobby from './Lobby';
+import { Vec, MultiplayerState } from './types';
 
-/**
- * Full Carrom Game Page (single-file)
- * - Drop into /app/game/page.tsx
- * - Uses uploaded texture: /mnt/data/0c55eea9-4050-494e-acfa-b65e6e8ebb6b.png
- * - Enlarged playing zone, coin sizes, striker sizes
- * - Striker X-axis positioning in striker zone + vertical pull to shoot
- * - After shot completes, striker moves to opposite side and player switches
- */
-
-/* ---------------- Config ---------------- */
-const BOARD_TEXTURE = "/mnt/data/0c55eea9-4050-494e-acfa-b65e6e8ebb6b.png";
-const LOGICAL_SIZE = 1200; // larger logical resolution to increase "board zone"
-const POCKET_RADIUS = 47;
-const COIN_RADIUS = 28; // increased coin radius
-const STRIKER_RADIUS = 34; // increased striker radius
-const STRIKER_AREA_HEIGHT = 205; // taller striker zone
-const FRICTION = 0.993;
-const WALL_RESTITUTION = 0.9;
-const COIN_RESTITUTION = 0.985;
-const MIN_VEL = 0.02;
-const POWER_MULTIPLIER = 0.11;
-const MAX_POWER = 220;
-
-/* ---------------- Types --------------- */
-type Vec = { x: number; y: number };
-type CoinKind = "coin" | "queen" | "striker";
-type Coin = {
-  id: number;
-  x: number;
-  y: number;
-  r: number;
-  vx: number;
-  vy: number;
-  color: string;
-  kind: CoinKind;
-  pocketed: boolean;
-  _justShot?: boolean;
-};
-
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const len = (dx: number, dy: number) => Math.sqrt(dx * dx + dy * dy);
-const dist = (a: Vec, b: Vec) => len(a.x - b.x, a.y - b.y);
-
-/* ---------------- Component ---------------- */
 export default function GamePage() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
-  // physics objects in refs
-  const coinsRef = useRef<Coin[]>([]);
-  const strikerRef = useRef<Coin | null>(null);
+  // multiplayer state
+  const [multiplayerState, setMultiplayerState] = useState<MultiplayerState>({
+    isConnected: false,
+    roomId: null,
+    playerRole: null,
+    opponentConnected: false,
+    gameStarted: false,
+  });
 
   // input/drag refs
   const pointerDownRef = useRef(false);
@@ -61,151 +30,63 @@ export default function GamePage() {
   const dragCurRef = useRef<Vec | null>(null);
   const aimingRef = useRef(false);
 
-  // UI state
-  const [currentPlayer, setCurrentPlayer] = useState<1 | 2>(1); // 1 bottom, 2 top
-  const [scores, setScores] = useState({ 1: 0, 2: 0 });
-  const [message, setMessage] = useState("Position striker horizontally then pull vertically to shoot.");
-  const [pocketedCounts, setPocketedCounts] = useState({ total: 0, queen: 0 });
-  const [isAnyMoving, setIsAnyMoving] = useState(false);
+  const {
+    coinsRef,
+    strikerRef,
+    gameState,
+    setCurrentPlayer,
+    setScores,
+    setMessage,
+    setPocketedCounts,
+    setIsAnyMoving,
+    resetTable,
+    updatePocketCounts,
+    switchPlayer,
+    getStrikerYForPlayer,
+    checkWinCondition,
+  } = useGameState();
 
   /* ---------- init ---------- */
   useEffect(() => {
-    loadTexture();
-    resetTable();
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-    startLoop();
+    if (multiplayerState.gameStarted) {
+      resetTable();
+      startLoop();
+    }
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [multiplayerState.gameStarted]);
 
-  function loadTexture() {
-    const img = new Image();
-    img.src = BOARD_TEXTURE;
-    imgRef.current = img;
-  }
+  /* ---------- socket listeners ---------- */
+  useEffect(() => {
+    if (socketRef.current) {
+      const socket = socketRef.current;
 
-  function getStrikerYForPlayer(player: 1 | 2) {
-    return player === 1 ? LOGICAL_SIZE - 175 : 175;
-  }
+      socket.on('gameUpdate', (gameStateUpdate) => {
+        // Update local state from server
+        setCurrentPlayer(gameStateUpdate.currentPlayer);
+        setScores(gameStateUpdate.scores);
+        setMessage(gameStateUpdate.message);
+        setPocketedCounts(gameStateUpdate.pocketedCounts);
+        setIsAnyMoving(gameStateUpdate.isAnyMoving);
 
-  /* ---------- reset table ---------- */
-  function resetTable() {
-    const center = LOGICAL_SIZE / 2;
-    const coins: Coin[] = [];
-    let id = 1;
-
-    // queen (red)
-    coins.push({
-      id: id++,
-      x: center,
-      y: center,
-      r: COIN_RADIUS,
-      vx: 0,
-      vy: 0,
-      color: "#ff3b30",
-      kind: "queen",
-      pocketed: false,
-    });
-
-    // cluster around queen (6)
-    const ringR = COIN_RADIUS * 3.2;
-    for (let i = 0; i < 6; i++) {
-      const ang = (i / 6) * Math.PI * 2;
-      coins.push({
-        id: id++,
-        x: center + ringR * Math.cos(ang),
-        y: center + ringR * Math.sin(ang),
-        r: COIN_RADIUS,
-        vx: 0,
-        vy: 0,
-        color: i % 2 === 0 ? "#0b0b0b" : "#ffffff",
-        kind: "coin",
-        pocketed: false,
+        // Update coins and striker
+        coinsRef.current = gameStateUpdate.coins.map((c: any) => ({ ...c }));
+        if (gameStateUpdate.striker) {
+          strikerRef.current = { ...gameStateUpdate.striker };
+        }
       });
+
+      return () => {
+        socket.off('gameUpdate');
+      };
     }
+  }, [multiplayerState.gameStarted]);
 
-    // outer 6
-    const outerR = COIN_RADIUS * 5.6;
-    for (let i = 0; i < 6; i++) {
-      const ang = ((i + 0.5) / 6) * Math.PI * 2;
-      coins.push({
-        id: id++,
-        x: center + outerR * Math.cos(ang),
-        y: center + outerR * Math.sin(ang),
-        r: COIN_RADIUS,
-        vx: 0,
-        vy: 0,
-        color: i % 2 ? "#0b0b0b" : "#ffffff",
-        kind: "coin",
-        pocketed: false,
-      });
-    }
-
-    // Add extra coins to reach 9+9 excluding queen
-    let whiteCount = coins.filter((c) => c.kind === "coin" && c.color === "#ffffff").length;
-    let blackCount = coins.filter((c) => c.kind === "coin" && c.color === "#0b0b0b").length;
-
-    while (whiteCount < 9 || blackCount < 9) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = outerR + COIN_RADIUS * (0.8 + Math.random() * 1.6);
-      const color = whiteCount < 9 ? "#ffffff" : "#0b0b0b";
-      coins.push({
-        id: id++,
-        x: center + Math.cos(angle) * radius,
-        y: center + Math.sin(angle) * radius,
-        r: COIN_RADIUS,
-        vx: 0,
-        vy: 0,
-        color,
-        kind: "coin",
-        pocketed: false,
-      });
-      if (color === "#ffffff") whiteCount++;
-      else blackCount++;
-    }
-
-    coinsRef.current = coins;
-
-    // striker initial placement (center X, bottom player)
-    strikerRef.current = {
-      id: 9999,
-      x: LOGICAL_SIZE / 2,
-      y: getStrikerYForPlayer(1),
-      r: STRIKER_RADIUS,
-      vx: 0,
-      vy: 0,
-      color: "#ffffff",
-      kind: "striker",
-      pocketed: false,
-    };
-
-    setScores({ 1: 0, 2: 0 });
-    setCurrentPlayer(1);
-    setMessage("Player 1 (bottom) to play. Position striker horizontally then pull vertically to shoot.");
-    setPocketedCounts({ total: 0, queen: 0 });
-  }
-
-  /* ---------- canvas resize ---------- */
-  function resizeCanvas() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    const scale = Math.min(window.innerWidth / LOGICAL_SIZE, window.innerHeight / LOGICAL_SIZE);
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.width = Math.round(window.innerWidth * dpr);
-    canvas.height = Math.round(window.innerHeight * dpr);
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const translateX = (window.innerWidth - LOGICAL_SIZE * scale) / 2 * dpr;
-      const translateY = (window.innerHeight - LOGICAL_SIZE * scale) / 2 * dpr;
-      ctx.setTransform(scale * dpr, 0, 0, scale * dpr, translateX, translateY);
-    }
-  }
+  const handleGameStart = (socket: Socket, newMultiplayerState: MultiplayerState) => {
+    socketRef.current = socket;
+    setMultiplayerState(newMultiplayerState);
+  };
 
   /* ---------- main loop ---------- */
   function startLoop() {
@@ -214,7 +95,6 @@ export default function GamePage() {
       const dt = Math.min(34, now - last);
       last = now;
       physicsTick(dt / 16.67);
-      render();
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
@@ -226,497 +106,165 @@ export default function GamePage() {
     const s = strikerRef.current;
     if (!s) return;
 
-    // integrate coins
-    for (const c of coins) {
-      if (c.pocketed) continue;
-      c.vx *= FRICTION;
-      c.vy *= FRICTION;
-      if (Math.abs(c.vx) < MIN_VEL) c.vx = 0;
-      if (Math.abs(c.vy) < MIN_VEL) c.vy = 0;
-      c.x += c.vx * factor;
-      c.y += c.vy * factor;
+    // Substepping for better accuracy
+    const substeps = 2;
+    const subFactor = factor / substeps;
+    for (let i = 0; i < substeps; i++) {
+      integrateCoins(coins, s, subFactor);
+      handleWalls(coins, s, 28);
+      handleCollisions(coins, s);
     }
 
-    // striker
-    s.vx *= FRICTION;
-    s.vy *= FRICTION;
-    if (Math.abs(s.vx) < MIN_VEL) s.vx = 0;
-    if (Math.abs(s.vy) < MIN_VEL) s.vy = 0;
-    s.x += s.vx * factor;
-    s.y += s.vy * factor;
+    const pocketedThisTick = checkPockets(coins, s);
 
-    // walls bounce
-    const W = LOGICAL_SIZE;
-    const H = LOGICAL_SIZE;
-    const margin = 28; // smaller margin to enlarge play area
-    const bounce = (c: Coin) => {
-      if (c.pocketed) return;
-      if (c.x - c.r < margin) {
-        c.x = margin + c.r;
-        c.vx = -c.vx * WALL_RESTITUTION;
-      }
-      if (c.x + c.r > W - margin) {
-        c.x = W - margin - c.r;
-        c.vx = -c.vx * WALL_RESTITUTION;
-      }
-      if (c.y - c.r < margin) {
-        c.y = margin + c.r;
-        c.vy = -c.vy * WALL_RESTITUTION;
-      }
-      if (c.y + c.r > H - margin) {
-        c.y = H - margin - c.r;
-        c.vy = -c.vy * WALL_RESTITUTION;
-      }
-    };
-    for (const c of coins) bounce(c);
-    bounce(s);
-
-    // collisions
-    const handleCollision = (a: Coin, b: Coin) => {
-      if (a.pocketed || b.pocketed) return;
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const d = Math.sqrt(dx * dx + dy * dy) || 0.0001;
-      const minD = a.r + b.r;
-      if (d < minD) {
-        const overlap = 0.5 * (minD - d + 0.01);
-        const nx = dx / d;
-        const ny = dy / d;
-        a.x -= nx * overlap;
-        a.y -= ny * overlap;
-        b.x += nx * overlap;
-        b.y += ny * overlap;
-
-        // impulse
-        const rvx = b.vx - a.vx;
-        const rvy = b.vy - a.vy;
-        const velAlong = rvx * nx + rvy * ny;
-        if (velAlong > 0) return;
-        const impulse = -(1 + COIN_RESTITUTION) * velAlong / 2;
-        const ix = impulse * nx;
-        const iy = impulse * ny;
-        a.vx -= ix;
-        a.vy -= iy;
-        b.vx += ix;
-        b.vy += iy;
-      }
-    };
-
-    for (let i = 0; i < coins.length; i++) {
-      for (let j = i + 1; j < coins.length; j++) {
-        handleCollision(coins[i], coins[j]);
-      }
-    }
-    for (const c of coins) handleCollision(s, c);
-
-    // pockets
-    const pockets: Vec[] = [
-      { x: POCKET_RADIUS, y: POCKET_RADIUS },
-      { x: LOGICAL_SIZE - POCKET_RADIUS, y: POCKET_RADIUS },
-      { x: POCKET_RADIUS, y: LOGICAL_SIZE - POCKET_RADIUS },
-      { x: LOGICAL_SIZE - POCKET_RADIUS, y: LOGICAL_SIZE - POCKET_RADIUS },
-    ];
-
-    const pocketedThisTick: Coin[] = [];
-    const checkPocket = (c: Coin) => {
-      if (c.pocketed) return;
-      for (const p of pockets) {
-        if (dist({ x: c.x, y: c.y }, p) < POCKET_RADIUS - 6) {
-          c.pocketed = true;
-          c.vx = 0;
-          c.vy = 0;
-          pocketedThisTick.push(c);
-          break;
-        }
-      }
-    };
-
-    for (const c of coins) checkPocket(c);
-    checkPocket(s);
-
+    let gameOver = false;
     if (pocketedThisTick.length > 0) {
       for (const c of pocketedThisTick) {
         if (c.kind === "striker") {
-          const opp = currentPlayer === 1 ? 2 : 1;
+          const opp = gameState.currentPlayer === 1 ? 2 : 1;
           setScores((prev) => ({ ...prev, [opp]: prev[opp] + 5 }));
           setMessage(`Striker pocketed: Player ${opp} +5. Striker will reset to other side.`);
         } else if (c.kind === "queen") {
-          setScores((prev) => ({ ...prev, [currentPlayer]: prev[currentPlayer] + 3 }));
-          setMessage(`Player ${currentPlayer} pocketed the Queen (+3).`);
+          setScores((prev) => ({ ...prev, [gameState.currentPlayer]: prev[gameState.currentPlayer] + 3 }));
+          setMessage(`Player ${gameState.currentPlayer} pocketed the Queen (+3).`);
         } else {
-          setScores((prev) => ({ ...prev, [currentPlayer]: prev[currentPlayer] + 1 }));
-          setMessage(`Player ${currentPlayer} pocketed a coin (+1).`);
+          setScores((prev) => ({ ...prev, [gameState.currentPlayer]: prev[gameState.currentPlayer] + 1 }));
+          setMessage(`Player ${gameState.currentPlayer} pocketed a coin (+1).`);
         }
       }
       updatePocketCounts();
+      gameOver = checkWinCondition();
     }
 
-    // movement detection
-    const anyMoving = (() => {
-      if (s.vx !== 0 || s.vy !== 0) return true;
-      for (const c of coins) if (c.vx !== 0 || c.vy !== 0) return true;
-      return false;
-    })();
-
+    const anyMoving = isAnyMoving(coins, s);
     setIsAnyMoving(anyMoving);
 
-    // When everything stops and last shot flag was set -> switch player and reset striker to opposite side
-    if (!anyMoving && s._justShot) {
-      s._justShot = false;
-      setCurrentPlayer((p) => {
-        const next = p === 1 ? 2 : 1;
-        const sref = strikerRef.current;
-        if (sref) {
-          sref.vx = 0;
-          sref.vy = 0;
-          sref.pocketed = false;
-          sref.x = LOGICAL_SIZE / 2;
-          sref.y = getStrikerYForPlayer(next);
-        }
-        setMessage(`Motion stopped. Player ${next} turn — striker moved to opposite side.`);
-        return next as 1 | 2;
+    // Send game state update to server if multiplayer
+    if (multiplayerState.gameStarted && socketRef.current && multiplayerState.roomId) {
+      const gameStateUpdate = {
+        currentPlayer: gameState.currentPlayer,
+        scores: gameState.scores,
+        message: gameState.message,
+        pocketedCounts: gameState.pocketedCounts,
+        isAnyMoving: anyMoving,
+        coins: coins.map(c => ({ ...c })),
+        striker: s ? { ...s } : null
+      };
+      socketRef.current.emit('gameUpdate', {
+        roomId: multiplayerState.roomId,
+        gameState: gameStateUpdate
       });
     }
-  }
 
-  /* ---------- update pocket counts ---------- */
-  function updatePocketCounts() {
-    const coins = coinsRef.current;
-    const total = coins.filter((c) => c.pocketed && c.kind !== "striker").length;
-    const queen = coins.filter((c) => c.pocketed && c.kind === "queen").length;
-    setPocketedCounts({ total, queen });
+    // When everything stops and last shot flag was set -> switch player and reset striker to opposite side
+    if (!anyMoving && s._justShot && !gameOver) {
+      s._justShot = false;
+      switchPlayer();
+    }
   }
 
   /* ---------- input handling ---------- */
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !strikerRef.current) return;
+  const toLogical = (clientX: number, clientY: number) => {
+    const scale = Math.min(window.innerWidth / LOGICAL_SIZE, window.innerHeight / LOGICAL_SIZE);
+    const boardLeft = (window.innerWidth - LOGICAL_SIZE * scale) / 2;
+    const boardTop = (window.innerHeight - LOGICAL_SIZE * scale) / 2;
+    const x = (clientX - boardLeft) / scale;
+    const y = (clientY - boardTop) / scale;
+    return { x, y };
+  };
 
-    const toLogical = (clientX: number, clientY: number) => {
-      const scale = Math.min(window.innerWidth / LOGICAL_SIZE, window.innerHeight / LOGICAL_SIZE);
-      const boardLeft = (window.innerWidth - LOGICAL_SIZE * scale) / 2;
-      const boardTop = (window.innerHeight - LOGICAL_SIZE * scale) / 2;
-      const x = (clientX - boardLeft) / scale;
-      const y = (clientY - boardTop) / scale;
-      return { x, y };
-    };
+  const positioningThreshold = 10;
 
-    const positioningThreshold = 10;
+  const onPointerDown = (ev: MouseEvent | TouchEvent) => {
+    const touch = (ev as TouchEvent).touches ? (ev as TouchEvent).touches[0] : undefined;
+    const cx = touch ? touch.clientX : (ev as MouseEvent).clientX;
+    const cy = touch ? touch.clientY : (ev as MouseEvent).clientY;
+    const p = toLogical(cx, cy);
 
-    const onDown = (ev: MouseEvent | TouchEvent) => {
-      const touch = (ev as TouchEvent).touches ? (ev as TouchEvent).touches[0] : undefined;
-      const cx = touch ? touch.clientX : (ev as MouseEvent).clientX;
-      const cy = touch ? touch.clientY : (ev as MouseEvent).clientY;
-      const p = toLogical(cx, cy);
+    const s = strikerRef.current!;
+    const areaTop = gameState.currentPlayer === 1 ? LOGICAL_SIZE - STRIKER_AREA_HEIGHT : 0;
+    const areaBottom = gameState.currentPlayer === 1 ? LOGICAL_SIZE : STRIKER_AREA_HEIGHT;
+    const inArea = p.y >= areaTop && p.y <= areaBottom;
+    const nearStriker = Math.sqrt((p.x - s.x) ** 2 + (p.y - s.y) ** 2) <= s.r + 20;
 
-      const s = strikerRef.current!;
-      const areaTop = currentPlayer === 1 ? LOGICAL_SIZE - STRIKER_AREA_HEIGHT : 0;
-      const areaBottom = currentPlayer === 1 ? LOGICAL_SIZE : STRIKER_AREA_HEIGHT;
-      const inArea = p.y >= areaTop && p.y <= areaBottom;
-      const nearStriker = dist(p, { x: s.x, y: s.y }) <= s.r + 20;
+    if (!inArea || !nearStriker || gameState.isAnyMoving) return;
 
-      if (!inArea || !nearStriker || isAnyMoving) return;
-
-      ev.preventDefault();
-      pointerDownRef.current = true;
-      dragStartRef.current = p;
-      dragCurRef.current = p;
-      aimingRef.current = false;
-    };
-
-    const onMove = (ev: MouseEvent | TouchEvent) => {
-      if (!pointerDownRef.current) return;
-      const touch = (ev as TouchEvent).touches ? (ev as TouchEvent).touches[0] : undefined;
-      const cx = touch ? touch.clientX : (ev as MouseEvent).clientX;
-      const cy = touch ? touch.clientY : (ev as MouseEvent).clientY;
-      const p = toLogical(cx, cy);
-      dragCurRef.current = p;
-
-      const start = dragStartRef.current;
-      if (!start) return;
-      const dy = start.y - p.y;
-      if (Math.abs(dy) > positioningThreshold) aimingRef.current = true;
-
-      const s = strikerRef.current!;
-      if (!aimingRef.current) {
-        // allow horizontal repositioning within board limits
-        const left = 59 + s.r;
-        const right = LOGICAL_SIZE - 59 - s.r;
-        s.x = clamp(p.x, left, right);
-        s.y = getStrikerYForPlayer(currentPlayer);
-      }
-      // if aiming, keep s.x locked (but small adjustments could be allowed if desired)
-    };
-
-    const onUp = () => {
-      if (!pointerDownRef.current) return;
-      pointerDownRef.current = false;
-      const start = dragStartRef.current;
-      const end = dragCurRef.current;
-      dragStartRef.current = null;
-      dragCurRef.current = null;
-
-      if (!start || !end) return;
-
-      const s = strikerRef.current!;
-      if (aimingRef.current) {
-        // compute pull vector
-        const dx = start.x - end.x;
-        const dy = start.y - end.y;
-        const power = clamp(len(dx, dy), 0, MAX_POWER);
-        if (power < 8) {
-          setMessage("Shot too weak — pull more.");
-          aimingRef.current = false;
-          return;
-        }
-        const nx = dx / (power || 1);
-        const ny = dy / (power || 1);
-        s.vx = nx * power * POWER_MULTIPLIER;
-        s.vy = ny * power * POWER_MULTIPLIER;
-        s._justShot = true;
-        setMessage(`Player ${currentPlayer} shot (power ${Math.round(power)})`);
-      } else {
-        setMessage(`Striker positioned X=${Math.round(s.x)}. Pull vertically to shoot.`);
-      }
-      aimingRef.current = false;
-    };
-
-    // attach events
-    canvas.addEventListener("mousedown", onDown);
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-
-    canvas.addEventListener("touchstart", onDown, { passive: false });
-    window.addEventListener("touchmove", onMove, { passive: false });
-    window.addEventListener("touchend", onUp);
-
-    return () => {
-      canvas.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-
-      canvas.removeEventListener("touchstart", onDown as EventListener);
-      window.removeEventListener("touchmove", onMove as EventListener);
-      window.removeEventListener("touchend", onUp as EventListener);
-    };
-  }, [currentPlayer, isAnyMoving]);
-
-  /* ---------- render ---------- */
-  function render() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
-
-    // background: texture or gradient
-    const img = imgRef.current;
-    if (img && img.complete && img.naturalWidth) {
-      // draw scaled to LOGICAL_SIZE
-      ctx.drawImage(img, 0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
-    } else {
-      const g = ctx.createLinearGradient(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
-      g.addColorStop(0, "#4a7c59");
-      g.addColorStop(1, "#2d5a27");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
+    // In multiplayer, only allow moves when it's your turn
+    if (multiplayerState.gameStarted && multiplayerState.playerRole !== gameState.currentPlayer) {
+      setMessage("It's not your turn!");
+      return;
     }
 
-    // outer rim
-    ctx.lineWidth = 24;
-    ctx.strokeStyle = "#8b4513";
-    ctx.strokeRect(12, 12, LOGICAL_SIZE - 24, LOGICAL_SIZE - 24);
+    ev.preventDefault();
+    pointerDownRef.current = true;
+    dragStartRef.current = p;
+    dragCurRef.current = p;
+    aimingRef.current = false;
+  };
 
-    // inner play area (bigger playable area due to smaller margins)
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "rgba(0,0,0,0.15)";
-    ctx.strokeRect(44, 44, LOGICAL_SIZE - 88, LOGICAL_SIZE - 88);
+  const onPointerMove = (ev: MouseEvent | TouchEvent) => {
+    if (!pointerDownRef.current) return;
+    const touch = (ev as TouchEvent).touches ? (ev as TouchEvent).touches[0] : undefined;
+    const cx = touch ? touch.clientX : (ev as MouseEvent).clientX;
+    const cy = touch ? touch.clientY : (ev as MouseEvent).clientY;
+    const p = toLogical(cx, cy);
+    dragCurRef.current = p;
 
-    // pockets
-    const pockets: Vec[] = [
-      { x: POCKET_RADIUS + 10, y: POCKET_RADIUS + 10 },
-      { x: LOGICAL_SIZE - POCKET_RADIUS - 10, y: POCKET_RADIUS + 10 },
-      { x: POCKET_RADIUS + 10, y: LOGICAL_SIZE - POCKET_RADIUS - 10 },
-      { x: LOGICAL_SIZE - POCKET_RADIUS - 10, y: LOGICAL_SIZE - POCKET_RADIUS - 10 },
-    ];
-    for (const p of pockets) {
-      const grad = ctx.createRadialGradient(p.x - 6, p.y - 6, POCKET_RADIUS * 0.2, p.x, p.y, POCKET_RADIUS);
-      grad.addColorStop(0, "#000");
-      grad.addColorStop(1, "rgba(0,0,0,0.4)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
-      ctx.fill();
+    const start = dragStartRef.current;
+    if (!start) return;
+    const dy = start.y - p.y;
+    if (Math.abs(dy) > positioningThreshold) aimingRef.current = true;
+
+    const s = strikerRef.current!;
+    if (!aimingRef.current) {
+      // allow horizontal repositioning within board limits
+      const left = 59 + s.r;
+      const right = LOGICAL_SIZE - 59 - s.r;
+      s.x = clamp(p.x, left, right);
+      s.y = getStrikerYForPlayer(gameState.currentPlayer);
     }
+  };
 
-    // striker zones shading (top & bottom)
-    ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.12)";
-    const zoneHeight = STRIKER_AREA_HEIGHT - 20;
-    ctx.fillRect(59, 44, LOGICAL_SIZE - 118, zoneHeight);
-    ctx.fillRect(59, LOGICAL_SIZE - 44 - zoneHeight, LOGICAL_SIZE - 118, zoneHeight);
-    ctx.restore();
+  const onPointerUp = () => {
+    if (!pointerDownRef.current) return;
+    pointerDownRef.current = false;
+    const start = dragStartRef.current;
+    const end = dragCurRef.current;
+    dragStartRef.current = null;
+    dragCurRef.current = null;
 
-    // decorative corner circles (reference style)
-    ctx.save();
-    ctx.fillStyle = "#a0522d";
-    const corners = [
-      { x: 127, y: 107 },
-      { x: LOGICAL_SIZE - 127, y: 107 },
-      { x: 127, y: LOGICAL_SIZE - 107 },
-      { x: LOGICAL_SIZE - 127, y: LOGICAL_SIZE - 107 },
-    ];
-    for (const c of corners) {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 18, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "#654321";
-      ctx.stroke();
-    }
-    ctx.restore();
+    if (!start || !end) return;
 
-    // draw coins
-    const coins = coinsRef.current;
-    for (const c of coins) {
-      if (c.pocketed) continue;
-      ctx.save();
-      // shadow
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.15)";
-      ctx.ellipse(c.x + 5, c.y + 8, c.r * 1.0, c.r * 0.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // face
-      ctx.beginPath();
-      const grad = ctx.createRadialGradient(c.x - c.r * 0.3, c.y - c.r * 0.3, 0, c.x, c.y, c.r);
-      if (c.color === "#ffffff") {
-        grad.addColorStop(0, "#ffffff");
-        grad.addColorStop(1, "#cccccc");
-      } else if (c.color === "#0b0b0b") {
-        grad.addColorStop(0, "#555555");
-        grad.addColorStop(1, "#000000");
-      } else { // queen
-        grad.addColorStop(0, "#ff6666");
-        grad.addColorStop(1, "#cc0000");
-      }
-      ctx.fillStyle = grad;
-      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      // highlight
-      ctx.beginPath();
-      ctx.arc(c.x - c.r * 0.4, c.y - c.r * 0.4, c.r * 0.25, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
-      ctx.fill();
-
-      // rim
-      ctx.lineWidth = 1.4;
-      ctx.strokeStyle = "rgba(0,0,0,0.18)";
-      ctx.stroke();
-
-      // queen label
-      if (c.kind === "queen") {
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 16px system-ui";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 1;
-        ctx.strokeText("♛", c.x, c.y);
-        ctx.fillText("♛", c.x, c.y);
-      }
-      ctx.restore();
-    }
-
-    // draw striker
-    const s = strikerRef.current;
-    if (s && !s.pocketed) {
-      ctx.save();
-      // shadow
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.ellipse(s.x + 5, s.y + 8, s.r * 1.1, s.r * 0.55, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // body with subtle gradient
-      const g = ctx.createRadialGradient(s.x - s.r * 0.3, s.y - s.r * 0.3, 0, s.x, s.y, s.r);
-      g.addColorStop(0, "#ffffff");
-      g.addColorStop(1, "#dbe8ff");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      // highlight
-      ctx.beginPath();
-      ctx.arc(s.x - s.r * 0.4, s.y - s.r * 0.4, s.r * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.fill();
-
-      // center dot
-      ctx.beginPath();
-      ctx.fillStyle = "#334155";
-      ctx.arc(s.x, s.y, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.lineWidth = 1.8;
-      ctx.strokeStyle = "#6b7280";
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // aiming / positioning indicators
-    if (pointerDownRef.current && dragStartRef.current && dragCurRef.current && s) {
-      const start = dragStartRef.current;
-      const cur = dragCurRef.current;
-      const dx = start.x - cur.x;
-      const dy = start.y - cur.y;
+    const s = strikerRef.current!;
+    if (aimingRef.current) {
+      // compute pull vector
+      const dx = start.x - end.x;
+      const dy = start.y - end.y;
       const power = clamp(len(dx, dy), 0, MAX_POWER);
-
-      if (Math.abs(dy) > 10) {
-        // aiming line
-        const nx = s.x + dx;
-        const ny = s.y + dy;
-        ctx.save();
-        ctx.beginPath();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "rgba(59,130,246,0.9)";
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(nx, ny);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.fillStyle = "rgba(59,130,246,0.12)";
-        ctx.arc(s.x, s.y, Math.min(power, MAX_POWER), 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.fillStyle = "#1e40af";
-        ctx.arc(nx, ny, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        // positioning marker
-        ctx.save();
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(255,255,255,0.6)";
-        ctx.moveTo(s.x, s.y - 28);
-        ctx.lineTo(s.x, s.y + 28);
-        ctx.stroke();
-        ctx.restore();
+      if (power < 8) {
+        setMessage("Shot too weak — pull more.");
+        aimingRef.current = false;
+        return;
       }
+      const nx = dx / (power || 1);
+      const ny = dy / (power || 1);
+      s.vx = nx * power * POWER_MULTIPLIER;
+      s.vy = ny * power * POWER_MULTIPLIER;
+      s._justShot = true;
+      setMessage(`Player ${gameState.currentPlayer} shot (power ${Math.round(power)})`);
+    } else {
+      setMessage(`Striker positioned X=${Math.round(s.x)}. Pull vertically to shoot.`);
     }
-  }
+    aimingRef.current = false;
+  };
 
   /* ---------- control helpers ---------- */
-  function handleReset() {
+  const handleReset = () => {
     resetTable();
     setMessage("Table reset. Player 1 to play.");
-  }
-  function handlePass() {
+  };
+
+  const handlePass = () => {
     setCurrentPlayer((p) => {
       const next = p === 1 ? 2 : 1;
       const s = strikerRef.current;
@@ -727,14 +275,9 @@ export default function GamePage() {
         s.vy = 0;
       }
       setMessage(`Forced pass. Player ${next} turn.`);
-      return next as 1 | 2;
+      return next;
     });
-  }
-  function handleEndGame() {
-    if (scores[1] > scores[2]) setMessage("Player 1 wins!");
-    else if (scores[2] > scores[1]) setMessage("Player 2 wins!");
-    else setMessage("Tie!");
-  }
+  };
 
   /* ---------- periodic update for counts ---------- */
   useEffect(() => {
@@ -743,68 +286,32 @@ export default function GamePage() {
   }, []);
 
   /* ---------- JSX ---------- */
+  if (!multiplayerState.gameStarted) {
+    return <Lobby onGameStart={handleGameStart} />;
+  }
+
   return (
     <div style={{ height: "100vh", width: "100vw", background: "#071427", color: "#e6edf3", boxSizing: "border-box", position: "relative" }}>
-      <div style={{ height: "100%", width: "100%", position: "relative" }}>
-        {/* Overlay controls top */}
-        <div style={{ position: "absolute", top: 20, right: 20, background: "rgba(7, 20, 39, 0.9)", padding: 16, borderRadius: 12, zIndex: 10, maxWidth: 300 }}>
-          <h2 style={{ margin: 0 }}>Carrom — Full Screen</h2>
-          <p style={{ color: "#94a3b8" }}>{message}</p>
-
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-            <div>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>Current Turn</div>
-              <div style={{ fontSize: 18 }}>{currentPlayer === 1 ? "Player 1 (Bottom)" : "Player 2 (Top)"}</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>Pocketed</div>
-              <div style={{ fontSize: 18 }}>{pocketedCounts.total}</div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-            <button onClick={handleReset} style={{ flex: 1, padding: 10, background: "#ef4444", color: "#fff", border: "none", borderRadius: 8 }}>
-              Reset
-            </button>
-            <button onClick={handlePass} style={{ flex: 1, padding: 10, background: "#f59e0b", color: "#fff", border: "none", borderRadius: 8 }}>
-              Pass
-            </button>
-          </div>
-
-          <div style={{ marginTop: 12, color: "#94a3b8" }}>
-            <div>Black & white coins (9 each) + Red queen</div>
-            <div style={{ marginTop: 6 }}>Position striker horizontally, then pull vertically to shoot.</div>
-            <div style={{ marginTop: 6 }}>After a completed shot, striker switches to the other's zone.</div>
-          </div>
-        </div>
-
-        {/* Overlay scoreboard left */}
-        <div style={{ position: "absolute", bottom: 20, left: 20, background: "rgba(7, 20, 39, 0.9)", padding: 16, borderRadius: 12, zIndex: 10, maxWidth: 200 }}>
-          <h3 style={{ margin: 0 }}>Scoreboard</h3>
-
-          <div style={{ marginTop: 12, padding: 12, borderRadius: 8, background: currentPlayer === 1 ? "rgba(16,185,129,0.06)" : "transparent" }}>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>Player 1</div>
-            <div style={{ fontSize: 28 }}>{scores[1]}</div>
-          </div>
-
-          <div style={{ marginTop: 12, padding: 12, borderRadius: 8, background: currentPlayer === 2 ? "rgba(59,130,246,0.06)" : "transparent" }}>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>Player 2</div>
-            <div style={{ fontSize: 28 }}>{scores[2]}</div>
-          </div>
-
-          <div style={{ marginTop: 12, color: "#94a3b8" }}>
-            <div>Queen: {pocketedCounts.queen}</div>
-            <div>Total: {pocketedCounts.total}</div>
-          </div>
-        </div>
-
-        {/* Full screen board */}
-        <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-          <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
-        </div>
-
-      </div>
+      <GameUI
+        currentPlayer={gameState.currentPlayer}
+        scores={gameState.scores}
+        message={gameState.message}
+        pocketedCounts={gameState.pocketedCounts}
+        onReset={handleReset}
+        onPass={handlePass}
+      />
+      <GameBoard
+        coins={coinsRef.current}
+        striker={strikerRef.current}
+        currentPlayer={gameState.currentPlayer}
+        pointerDown={pointerDownRef.current}
+        dragStart={dragStartRef.current}
+        dragCur={dragCurRef.current}
+        aiming={aimingRef.current}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+      />
     </div>
   );
 }
-

@@ -1,0 +1,12 @@
+export const BOARD_TEXTURE = "/mnt/data/0c55eea9-4050-494e-acfa-b65e6e8ebb6b.png";
+export const LOGICAL_SIZE = 1200;
+export const POCKET_RADIUS = 47;
+export const COIN_RADIUS = 28;
+export const STRIKER_RADIUS = 34;
+export const STRIKER_AREA_HEIGHT = 205;
+export const FRICTION = 0.993;
+export const WALL_RESTITUTION = 0.9;
+export const COIN_RESTITUTION = 0.985;
+export const MIN_VEL = 0.02;
+export const POWER_MULTIPLIER = 0.11;
+export const MAX_POWER = 220;
