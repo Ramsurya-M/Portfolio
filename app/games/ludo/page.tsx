@@ -13,7 +13,7 @@ const LudoGame = () => {
   const BOARD_SIZE = 15
 
   // Player colors
-  const playerColors = ['red', 'blue', 'yellow', 'green']
+  const playerColors = React.useMemo(() => ['red', 'blue', 'yellow', 'green'], [])
 
   // Game state
   const [numPlayers, setNumPlayers] = useState<number>(4)

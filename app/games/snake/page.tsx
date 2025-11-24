@@ -21,7 +21,7 @@ const SnakeAndLadderGame = () => {
   }
 
   // Player colors
-  const playerColors = ['red', 'blue', 'green', 'yellow']
+  const playerColors = React.useMemo(() => ['red', 'blue', 'green', 'yellow'], [])
 
   // Game state
   const [numPlayers, setNumPlayers] = useState<number>(2)
