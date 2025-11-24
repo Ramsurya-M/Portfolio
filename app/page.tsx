@@ -10,6 +10,12 @@ import LogoCarousel from './Carousal'
 import SkillsPage from './Skill'
 import Resume from './Resume'
 import { SmoothCursor } from '@/components/ui/smooth-cursor'
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Portfolio",
+  description: "My Portfolio Website",
+};
 
 export default function Home() {
   return (

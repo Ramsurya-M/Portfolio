@@ -1,6 +1,5 @@
 import { Source_Code_Pro } from 'next/font/google'
-import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/magicui/theme-provider";
+import { ClientLayout } from "@/components/ClientLayout";
 import "./globals.css";
 
 const sourceCodePro = Source_Code_Pro({
@@ -9,27 +8,17 @@ const sourceCodePro = Source_Code_Pro({
   weight: ['400', '700']
 })
 
-export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "My Portfolio Website",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${sourceCodePro.variable}`}>
+    <html lang="en" className={sourceCodePro.variable}>
       <body className="font-mono">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ClientLayout>
           {children}
-        </ThemeProvider>
+        </ClientLayout>
       </body>
     </html>
   )

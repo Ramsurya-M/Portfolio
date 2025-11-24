@@ -6,7 +6,7 @@
 
 @theme {
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-source-code-pro);
 }
 
 :root {
@@ -219,17 +219,9 @@
   }
 }
 
-@font-face {
-  font-family: 'Source Code Pro';
-  src: url('/fonts/SourceCodePro-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   body {
-    font-family: 'Source Code Pro', monospace !important;
+    font-family: 'Source Code Pro', monospace;
   }
 }
 
