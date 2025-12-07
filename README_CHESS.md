@@ -6,6 +6,7 @@ A modern, responsive web chess application built with React, TypeScript, and Nex
 
 - **Complete Chess Rules**: Full implementation of chess rules including castling, en passant, pawn promotion, check/checkmate, stalemate, threefold repetition, and 50-move rule
 - **Smooth Animations**: Piece movements with 150-300ms transitions using Framer Motion
+- **Game States**: Tracks check, checkmate, stalemate, and draw conditions
 - **Drag & Drop**: Intuitive drag-and-drop piece movement alongside click-to-move
 - **Visual Feedback**: Highlighting for selected squares, legal moves, and last move
 - **Accessibility**: Keyboard navigation with arrow keys and Enter/Space selection, ARIA labels
