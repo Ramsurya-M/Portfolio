@@ -9,6 +9,7 @@ A modern, responsive web chess application built with React, TypeScript, and Nex
 - **Game States**: Tracks check, checkmate, stalemate, and draw conditions
 - **Drag & Drop**: Intuitive drag-and-drop piece movement alongside click-to-move
 - **Visual Feedback**: Highlighting for selected squares, legal moves, and last move
+- **Game Status**: Displays current player, game status (ongoing, check, checkmate, stalemate, draw), and move counter
 - **Accessibility**: Keyboard navigation with arrow keys and Enter/Space selection, ARIA labels
 - **Move History**: SAN notation move history with PGN export
 - **Responsive Design**: Works on desktop and mobile devices
