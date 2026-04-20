@@ -8,6 +8,11 @@ const sourceCodePro = Source_Code_Pro({
   weight: ['400', '700']
 })
 
+export const metadata = {
+  title: "Ramsurya | Front-End Developer",
+  description: "Portfolio of Ramsurya - Building premium web experiences with React, Next.js, and 3D interactions.",
+};
+
 export default function RootLayout({
   children,
 }: {
