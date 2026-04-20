@@ -39,64 +39,42 @@ export default function ProjectsPage() {
   const { theme } = useTheme();
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-black' : 'bg-gradient-to-br from-[#fff9f0] to-[#fef3e0]'}`}>
+    <div className={`min-h-screen relative overflow-x-hidden selection:bg-purple-500/30 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-[#fffcf8]'}`}>
       <Navbar />
-      {/* Optional: Add background grid similar to About page */}
-      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-grid-purple-900/[0.05]' : 'bg-grid-amber-900/[0.03]'}`} style={{ zIndex: -1 }} />
+      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.03]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
-      {/* Main container */}
-      <main className="container relative mx-auto px-4 py-24 md:py-32 z-10">
-        <h1 className={`text-4xl md:text-5xl font-bold text-center mb-16 ${theme === 'dark' ? 'text-orange-400' : 'text-amber-800'}`}>
+      <main className="container relative mx-auto px-6 sm:px-10 lg:px-16 py-24 md:py-32 z-20 max-w-7xl">
+        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-black text-center mb-16 md:mb-24 ${theme === 'dark' ? 'text-white' : 'text-neutral-900'} tracking-tighter`}>
           My Projects
         </h1>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 lg:gap-12">
           {projects.map((project) => (
-            <div 
-              key={project.id} 
-              // Removed overflow-hidden as image is gone, adjusted padding/styling if needed
-              className={`rounded-xl shadow-lg transition-transform duration-300 hover:scale-105 ${theme === 'dark' ? 'bg-gray-800/70 border border-purple-500/30' : 'bg-white/80 border border-amber-300/50'} backdrop-blur-sm p-6`} // Added padding directly here
+            <div
+              key={project.id}
+              className={`group flex flex-col h-full rounded-3xl shadow-2xl transition-all duration-500 hover:-translate-y-2 ${theme === 'dark' ? 'bg-neutral-900/40 border border-white/5 hover:border-purple-500/40' : 'bg-white border border-neutral-200 hover:border-amber-500/40'} backdrop-blur-xl p-8 sm:p-10`}
             >
-              {/* Project Image Section - REMOVED */}
-              {/* 
-              <div className="relative w-full h-48 md:h-56"> 
-                <Image 
-                  src={project.imageUrl} 
-                  alt={`${project.title} screenshot`} 
-                  layout="fill" 
-                  objectFit="cover" 
-                  className="transition-opacity duration-300" 
-                />
-              </div> 
-              */}
-              
-              {/* Project Content - Now the main content of the card */}
-              {/* <div className="p-6"> */} {/* Removed inner padding div */}
-                <h2 className={`text-2xl font-semibold mb-3 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-800'}`}>
-                  {project.title}
-                </h2>
-                <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {project.description}
-                </p>
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.techStack.map((tech) => (
-                    <span key={tech} className={`px-2 py-1 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-amber-100 text-amber-800'}`}>
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                {/* Project Link */}
-                <a 
-                  href={project.projectUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className={`inline-block text-sm font-medium ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} transition-colors`}
-                >
-                  View Project &rarr;
-                </a>
-              {/* </div> */} {/* Removed inner padding div */}
+              <h2 className={`text-3xl font-extrabold mb-4 ${theme === 'dark' ? 'text-neutral-100' : 'text-neutral-900'} group-hover:text-purple-500 transition-colors`}>
+                {project.title}
+              </h2>
+              <p className={`text-base leading-relaxed mb-6 flex-grow ${theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>
+                {project.description}
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {project.techStack.map((tech) => (
+                  <span key={tech} className={`px-3 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'bg-gray-800 text-purple-400' : 'bg-amber-100 text-amber-900'}`}>
+                    {tech}
+                  </span>
+                ))}
+              </div>
+              <a
+                href={project.projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center text-sm font-bold ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} transition-all hover:translate-x-1`}
+              >
+                View Project <span className="ml-2">&rarr;</span>
+              </a>
             </div>
           ))}
         </div>

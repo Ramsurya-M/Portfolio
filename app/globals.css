@@ -301,3 +301,12 @@
 .animate-delay-500 {
   animation-delay: 500ms;
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
