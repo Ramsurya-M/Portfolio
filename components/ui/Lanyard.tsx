@@ -16,6 +16,13 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
 import * as THREE from 'three'
 
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    meshLineGeometry: any
+    meshLineMaterial: any
+  }
+}
+
 extend({ MeshLineGeometry, MeshLineMaterial })
 
 const CARD_GLB_URL = '/reactbits/card.glb'
