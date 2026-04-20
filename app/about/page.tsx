@@ -4,8 +4,11 @@ import React from 'react';
 import Navbar from '../Navbar';
 import Footer from '../Footer';
 import { useTheme } from 'next-themes';
-// Assuming Lanyard is located in your components folder
-import Lanyard from '@/components/ui/Lanyard';
+import dynamic from 'next/dynamic';
+
+const Lanyard = dynamic(() => import('@/components/ui/Lanyard'), {
+  ssr: false,
+});
 
 export default function AboutPage() {
   const { theme } = useTheme();
@@ -14,8 +17,8 @@ export default function AboutPage() {
     <div className={`min-h-screen relative overflow-x-hidden selection:bg-purple-500/30 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-[#fffcf8]'}`}>
       <Navbar />
 
-      {/* Background Grid - Visible on mobile to prevent flat "black screen" */}
-      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.03]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
+      {/* Background Grid */}
+      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.02]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
       <main className="relative z-10">
         {/* Hero Section */}

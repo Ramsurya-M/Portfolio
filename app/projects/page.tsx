@@ -1,4 +1,4 @@
-﻿'use client' // Add this directive for using hooks
+'use client' // Add this directive for using hooks
 
 import React from 'react';
 import Navbar from '../Navbar'; // Import Navbar
@@ -44,9 +44,15 @@ export default function ProjectsPage() {
       <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.03]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
       <main className="container relative mx-auto px-6 sm:px-10 lg:px-16 py-24 md:py-32 z-20 max-w-7xl">
-        <h1 className={`text-4xl md:text-6xl lg:text-7xl font-black text-center mb-16 md:mb-24 ${theme === 'dark' ? 'text-white' : 'text-neutral-900'} tracking-tighter`}>
-          My Projects
-        </h1>
+        <div className="space-y-4 mb-16">
+          <h2 className={`text-sm font-bold uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-purple-500' : 'text-amber-600'}`}>
+            Gallery
+          </h2>
+          <h1 className={`text-5xl md:text-7xl font-black leading-none tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
+            My <br />
+            <span className={theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}>Selected Projects</span>
+          </h1>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 lg:gap-12">
           {projects.map((project) => (

@@ -11,7 +11,6 @@ import About from './About'
 import LogoCarousel from './Carousal'
 import SkillsPage from './Skill'
 import Resume from './Resume'
-import { SmoothCursor } from '@/components/ui/smooth-cursor'
 import { useTheme } from 'next-themes'
 
 export default function Home() {
@@ -34,7 +33,6 @@ export default function Home() {
       </div>
 
       <div className="relative z-10">
-        <SmoothCursor />
         <Navbar/>
         <BackgroundLinesDemo/>
         <LogoCarousel/>

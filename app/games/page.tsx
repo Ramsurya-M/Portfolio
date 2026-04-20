@@ -37,47 +37,64 @@ const Games = () => {
   ]
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
+    <div className={`min-h-screen relative overflow-x-hidden selection:bg-purple-500/30 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-[#fffcf8]'}`}>
       <Navbar />
-      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-grid-purple-900/[0.05]' : 'bg-grid-amber-900/[0.03]'}`} />
+      
+      {/* Background Grid */}
+      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.02]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
-      <main className="container relative mx-auto px-4 py-24 md:py-32 z-10 space-y-16">
-        <section className="text-center">
-          <h1 className={`text-4xl md:text-6xl font-bold mb-4 ${theme === 'dark' ? 'text-orange-400' : 'text-red'}`}>
-            Games Showcase
+      <main className="container relative mx-auto px-6 py-32 md:py-32 z-10 max-w-7xl">
+        <div className="space-y-4 mb-16">
+          <h2 className={`text-sm font-bold uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-purple-500' : 'text-amber-600'}`}>
+            Playground
+          </h2>
+          <h1 className={`text-5xl md:text-7xl font-black leading-none tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
+            Interactive <br />
+            <span className={theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}>Showcase</span>
           </h1>
-          <p className={`text-lg md:text-xl max-w-3xl mx-auto ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            Explore my collection of interactive games and web-based projects. Each game demonstrates different programming concepts and technologies.
-          </p>
-        </section>
+        </div>
 
-        <section>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {games.map((game, index) => (
-              <div key={index} className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-800/60 border border-purple-500/30' : 'bg-white/70 border border-amber-300/50'} backdrop-blur-sm shadow-lg hover:scale-105 transition-transform duration-300`}>
-                <h3 className={`text-xl font-semibold mb-3 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-800'}`}>
-                  {game.title}
-                </h3>
-                <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {game.description}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {game.tech.map((tech) => (
-                    <span key={tech} className={`px-2 py-1 rounded-full text-xs font-medium ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-amber-100 text-amber-800'}`}>
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <a
-                  href={game.link}
-                  className={`inline-block px-4 py-2 rounded-md text-sm font-medium transition-colors ${theme === 'dark' ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}
-                >
-                  Let's Play
-                </a>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+          {games.map((game, index) => (
+            <div 
+              key={index} 
+              className={`p-8 rounded-[2rem] border transition-all duration-500 group ${
+                theme === 'dark' 
+                  ? 'bg-neutral-900/40 border-white/5 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]' 
+                  : 'bg-white/60 border-neutral-200 hover:border-amber-500/30 hover:shadow-xl shadow-sm'
+              } backdrop-blur-xl flex flex-col`}
+            >
+              <h3 className={`text-2xl font-black mb-4 ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
+                {game.title}
+              </h3>
+              <p className={`text-base leading-relaxed mb-8 flex-grow ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                {game.description}
+              </p>
+              
+              <div className="flex flex-wrap gap-2 mb-8">
+                {game.tech.map((tech) => (
+                  <span key={tech} className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${theme === 'dark' ? 'bg-neutral-800 text-purple-400' : 'bg-amber-50 text-amber-900'}`}>
+                    {tech}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+              
+              <a
+                href={game.link}
+                className={`inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold transition-all duration-300 ${
+                  theme === 'dark'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/10'
+                    : 'bg-neutral-900 hover:bg-black text-white shadow-lg'
+                }`}
+              >
+                Launch Game
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
+          ))}
+        </div>
       </main>
       <Footer />
     </div>

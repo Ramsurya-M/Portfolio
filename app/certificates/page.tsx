@@ -1,4 +1,4 @@
-﻿'use client' // Needed for useTheme hook
+'use client' // Needed for useTheme hook
 
 import React from 'react';
 import Navbar from '../Navbar'; // Import Navbar
@@ -64,55 +64,74 @@ export default function CertificatesPage() {
   const { theme } = useTheme();
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-black' : 'bg-gradient-to-br from-[#fff9f0] to-[#fef3e0]'}`}>
+    <div className={`min-h-screen relative overflow-x-hidden selection:bg-purple-500/30 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-[#fffcf8]'}`}>
       <Navbar />
-      {/* Optional: Background grid */}
-      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-grid-purple-900/[0.05]' : 'bg-grid-amber-900/[0.03]'}`} style={{ zIndex: -1 }} />
+      
+      {/* Background Grid */}
+      <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.02]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
       {/* Main container */}
-      <main className="container relative mx-auto px-4 py-24 md:py-32 z-10">
-        <h1 className={`text-4xl md:text-5xl font-bold text-center mb-16 ${theme === 'dark' ? 'text-orange-400' : 'text-amber-800'}`}>
-          My Certificates
-        </h1>
+      <main className="container relative mx-auto px-6 py-32 md:py-32 z-10 max-w-7xl">
+        <div className="space-y-4 mb-16">
+          <h2 className={`text-sm font-bold uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-purple-500' : 'text-amber-600'}`}>
+            Validation
+          </h2>
+          <h1 className={`text-5xl md:text-7xl font-black leading-none tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
+            My <br />
+            <span className={theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}>Certifications</span>
+          </h1>
+        </div>
 
         {/* Certificates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {certificates.map((cert) => (
             <div 
               key={cert.id} 
-              className={`rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105 ${theme === 'dark' ? 'bg-gray-800/70 border border-purple-500/30' : 'bg-white/80 border border-amber-300/50'} backdrop-blur-sm flex flex-col`} // Added flex flex-col
+              className={`rounded-3xl overflow-hidden transition-all duration-500 group border ${
+                theme === 'dark' 
+                  ? 'bg-neutral-900/40 border-white/5 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]' 
+                  : 'bg-white/60 border-neutral-200 hover:border-amber-500/30 hover:shadow-xl shadow-sm'
+              } backdrop-blur-sm flex flex-col`}
             >
               {/* Certificate Image */}
-              <div className="relative w-full aspect-video"> {/* Use aspect-video for common ratio */}
+              <div className="relative w-full aspect-[4/3] bg-neutral-100 dark:bg-neutral-800/50">
                 <Image 
                   src={cert.imageUrl} 
                   alt={`${cert.title} certificate`} 
                   layout="fill" 
-                  objectFit="contain" // Use contain to show the whole certificate
-                  className="p-2" // Add padding around image if needed
+                  objectFit="contain"
+                  className="p-4 transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               
               {/* Certificate Content */}
-              <div className="p-6 flex flex-col flex-grow"> {/* Added flex flex-col flex-grow */}
-                <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-800'}`}>
+              <div className="p-8 flex flex-col flex-grow">
+                <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
                   {cert.title}
                 </h2>
-                <p className={`text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Issued by: {cert.issuer}
-                </p>
-                <p className={`text-xs mb-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-                  {cert.date}
-                </p>
+                <div className="space-y-1 mb-6">
+                  <p className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Issued by: {cert.issuer}
+                  </p>
+                  <p className={`text-xs uppercase tracking-widest ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                    {cert.date}
+                  </p>
+                </div>
+                
                 {/* Verification Link */}
-                <div className="mt-auto"> {/* Pushes link to bottom */}
+                <div className="mt-auto">
                   <a 
                     href={cert.verifyUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className={`inline-block text-sm font-medium ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} transition-colors`}
+                    className={`inline-flex items-center text-sm font-bold tracking-tight ${
+                      theme === 'dark' ? 'text-purple-400 hover:text-purple-300' : 'text-amber-600 hover:text-amber-700'
+                    } transition-colors group/link`}
                   >
-                    Verify Certificate &rarr;
+                    <span>Verify Credential</span>
+                    <svg className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
                   </a>
                 </div>
               </div>
