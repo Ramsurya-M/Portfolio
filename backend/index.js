@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { UnoEngine } from './unoEngine.js';
+import { LudoEngine } from './ludoEngine.js';
 
 const app = express();
 app.use(cors());
@@ -12,7 +13,8 @@ const io = new Server(httpServer, {
   cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
-const rooms = new Map(); // roomId -> { engine, players, hostId, messages }
+const rooms = new Map(); // Uno rooms
+const ludoRooms = new Map(); // Ludo rooms
 
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -141,28 +143,109 @@ io.on('connection', (socket) => {
     io.in(roomId).emit('new_message', message);
   });
 
+  // --- LUDO GAME HANDLERS ---
+  socket.on('create_ludo_room', ({ playerName }) => {
+    const roomId = generateRoomCode();
+    const engine = new LudoEngine();
+    const player = { id: socket.id, name: playerName, socketId: socket.id, isHost: true, color: 'red' };
+    
+    ludoRooms.set(roomId, { engine, players: [player], hostId: socket.id, messages: [] });
+    socket.join(roomId);
+    socket.emit('ludo_room_created', { roomId, player });
+  });
+
+  socket.on('join_ludo_room', ({ roomId, playerName }) => {
+    const room = ludoRooms.get(roomId);
+    if (!room) return socket.emit('error', 'Room not found');
+    if (room.players.length >= 4) return socket.emit('error', 'Room is full');
+    if (room.engine.gameStarted) return socket.emit('error', 'Game already started');
+
+    const player = { id: socket.id, name: playerName, socketId: socket.id, isHost: false, color: 'gray' };
+    room.players.push(player);
+    socket.join(roomId);
+
+    socket.emit('ludo_room_joined', { roomId, player, players: room.players, messages: room.messages });
+    socket.to(roomId).emit('ludo_player_joined', player);
+  });
+
+  socket.on('start_ludo_game', ({ roomId }) => {
+    const room = ludoRooms.get(roomId);
+    if (!room || room.hostId !== socket.id || room.players.length < 2) return;
+    room.engine.startGame(room.players);
+    broadcastLudoState(roomId);
+  });
+
+  socket.on('roll_ludo_dice', ({ roomId }) => {
+    const room = ludoRooms.get(roomId);
+    if (!room) return;
+    const result = room.engine.rollDice(socket.id);
+    if (result) {
+      io.in(roomId).emit('ludo_dice_rolled', { 
+        playerId: socket.id, 
+        value: result.diceValue, 
+        validMoves: result.validMoves 
+      });
+      // If no valid moves, engine might have auto-skipped or we wait for client
+      if (result.validMoves.length === 0) {
+        setTimeout(() => {
+          room.engine.nextTurn();
+          broadcastLudoState(roomId);
+        }, 2000);
+      }
+    }
+  });
+
+  socket.on('move_ludo_token', ({ roomId, tokenIndex }) => {
+    const room = ludoRooms.get(roomId);
+    if (!room) return;
+    const result = room.engine.moveToken(socket.id, tokenIndex);
+    if (result.success) {
+      broadcastLudoState(roomId);
+    } else {
+      socket.emit('error', result.error);
+    }
+  });
+
+  socket.on('send_ludo_message', ({ roomId, text }) => {
+    const room = ludoRooms.get(roomId);
+    if (!room) return;
+    const player = room.players.find(p => p.id === socket.id);
+    const message = { id: Date.now(), playerId: socket.id, playerName: player.name, text, color: player.color, timestamp: new Date() };
+    room.messages.push(message);
+    io.in(roomId).emit('new_ludo_message', message);
+  });
+
   socket.on('disconnect', () => {
+    // Handle Uno rooms disconnect
     for (const [roomId, room] of rooms.entries()) {
       const idx = room.players.findIndex(p => p.id === socket.id);
       if (idx !== -1) {
         room.players.splice(idx, 1);
-        if (room.players.length === 0) {
-          rooms.delete(roomId);
-        } else {
+        if (room.players.length === 0) rooms.delete(roomId);
+        else {
           if (room.hostId === socket.id) {
             room.hostId = room.players[0].id;
             room.players[0].isHost = true;
-            io.in(roomId).emit('host_transferred', room.hostId);
           }
           io.in(roomId).emit('player_left', socket.id);
-          if (room.engine.gameStarted) {
-            if (room.players.length < 2) {
-              room.engine.gameStarted = false;
-              io.in(roomId).emit('game_ended', { reason: 'Not enough players' });
-            } else {
-              broadcastGameState(roomId);
-            }
+          broadcastGameState(roomId);
+        }
+        break;
+      }
+    }
+    // Handle Ludo rooms disconnect
+    for (const [roomId, room] of ludoRooms.entries()) {
+      const idx = room.players.findIndex(p => p.id === socket.id);
+      if (idx !== -1) {
+        room.players.splice(idx, 1);
+        if (room.players.length === 0) ludoRooms.delete(roomId);
+        else {
+          if (room.hostId === socket.id) {
+            room.hostId = room.players[0].id;
+            room.players[0].isHost = true;
           }
+          io.in(roomId).emit('ludo_player_left', socket.id);
+          broadcastLudoState(roomId);
         }
         break;
       }
@@ -178,6 +261,13 @@ function broadcastGameState(roomId) {
     const hand = room.engine.players.find(ep => ep.id === p.id)?.hand || [];
     io.to(p.socketId).emit('game_update', { gameState: { ...gameState, myHand: hand } });
   });
+}
+
+function broadcastLudoState(roomId) {
+  const room = ludoRooms.get(roomId);
+  if (!room) return;
+  const gameState = room.engine.getGameState();
+  io.in(roomId).emit('ludo_game_update', { gameState });
 }
 
 const PORT = process.env.PORT || 3001;

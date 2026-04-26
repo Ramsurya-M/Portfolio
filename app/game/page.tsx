@@ -19,6 +19,16 @@ export default function GamePage() {
       players: '2-8 Players',
       difficulty: 'Easy',
       features: ['Real-time', 'No Login', 'Mobile Ready']
+    },
+    {
+      id: 'ludo',
+      title: 'Ludo Royale',
+      description: 'The classic Ludo experience reimagined with premium 3D-style UI and real-time multiplayer.',
+      image: '/ludo-thumb.png',
+      href: '/games/ludo',
+      players: '2-4 Players',
+      difficulty: 'Medium',
+      features: ['Fast-Paced', 'Room Codes', 'Smooth Motion']
     }
   ];
 
