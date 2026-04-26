@@ -379,6 +379,7 @@
   },
   "homepage": "https://github.com/Ramsurya-M/Portfolio#readme",
   "devDependencies": {
+    "@types/react": "19.2.14",
     "baseline-browser-mapping": "^2.10.22"
   }
 }
