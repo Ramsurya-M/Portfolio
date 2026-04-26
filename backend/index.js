@@ -145,6 +145,7 @@ io.on('connection', (socket) => {
 
   // --- LUDO GAME HANDLERS ---
   socket.on('create_ludo_room', ({ playerName }) => {
+    console.log('Creating Ludo room for:', playerName);
     const roomId = generateRoomCode();
     const engine = new LudoEngine();
     const player = { id: socket.id, name: playerName, socketId: socket.id, isHost: true, color: 'red' };
@@ -152,11 +153,16 @@ io.on('connection', (socket) => {
     ludoRooms.set(roomId, { engine, players: [player], hostId: socket.id, messages: [] });
     socket.join(roomId);
     socket.emit('ludo_room_created', { roomId, player });
+    console.log('Ludo room created:', roomId);
   });
 
   socket.on('join_ludo_room', ({ roomId, playerName }) => {
+    console.log('Player joining Ludo room:', roomId, playerName);
     const room = ludoRooms.get(roomId);
-    if (!room) return socket.emit('error', 'Room not found');
+    if (!room) {
+      console.log('Ludo room not found:', roomId);
+      return socket.emit('error', 'Room not found');
+    }
     if (room.players.length >= 4) return socket.emit('error', 'Room is full');
     if (room.engine.gameStarted) return socket.emit('error', 'Game already started');
 
@@ -169,6 +175,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('start_ludo_game', ({ roomId }) => {
+    console.log('Starting Ludo game in room:', roomId);
     const room = ludoRooms.get(roomId);
     if (!room || room.hostId !== socket.id || room.players.length < 2) return;
     const newState = room.engine.startGame(room.players);

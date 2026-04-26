@@ -142,7 +142,7 @@ const LudoBoard: React.FC<LudoBoardProps> = ({
 
       {/* Main Board Area */}
       <div className="flex-1 bg-zinc-900/40 backdrop-blur-3xl border border-white/10 rounded-[4rem] p-4 md:p-8 flex items-center justify-center relative shadow-2xl">
-        <div className="aspect-square h-full max-h-[700px] bg-white rounded-3xl overflow-hidden grid grid-cols-15 grid-rows-15 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-8 border-white/10 relative">
+        <div className="aspect-square w-full max-w-[650px] bg-white rounded-3xl overflow-hidden grid grid-cols-[repeat(15,1fr)] grid-rows-[repeat(15,1fr)] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-8 border-white/10 relative">
           
           {/* Bases */}
           <div className="col-start-1 col-end-7 row-start-1 row-end-7">{renderBase('red')}</div>
