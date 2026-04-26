@@ -29,19 +29,25 @@ export default function LudoGamePage() {
     const newSocket = io(SOCKET_URL);
     setSocket(newSocket);
 
-    newSocket.on('connect', () => setIsConnecting(false));
-    newSocket.on('connect_error', () => {
+    newSocket.on('connect', () => {
+      console.log('Ludo Socket Connected:', newSocket.id);
+      setIsConnecting(false);
+    });
+    newSocket.on('connect_error', (err) => {
+      console.error('Ludo Connection Error:', err);
       setError('Connection failed. Is the server running?');
       setIsConnecting(false);
     });
 
     newSocket.on('ludo_room_created', ({ roomId, player }) => {
+      console.log('Ludo Room Created Event Received:', roomId, player);
       setRoomId(roomId);
       setMyPlayer(player);
       setPlayers([player]);
     });
 
     newSocket.on('ludo_room_joined', ({ roomId, player, players, messages }) => {
+      console.log('Ludo Room Joined Event Received:', roomId, player);
       setRoomId(roomId);
       setMyPlayer(player);
       setPlayers(players);
@@ -49,14 +55,17 @@ export default function LudoGamePage() {
     });
 
     newSocket.on('ludo_player_joined', (player) => {
+      console.log('Other Player Joined Ludo:', player);
       setPlayers((prev) => [...prev, player]);
     });
 
     newSocket.on('ludo_player_left', (playerId) => {
+      console.log('Player Left Ludo:', playerId);
       setPlayers((prev) => prev.filter(p => p.id !== playerId));
     });
 
     newSocket.on('ludo_game_update', ({ gameState }) => {
+      console.log('Ludo Game Update Received:', gameState);
       setGameState(gameState);
     });
 
@@ -75,10 +84,20 @@ export default function LudoGamePage() {
   }, []);
 
   const handleCreateRoom = (playerName: string) => {
+    if (!playerName.trim()) {
+      setError('Please enter a name first');
+      return;
+    }
+    console.log('Emitting create_ludo_room for:', playerName);
     socket?.emit('create_ludo_room', { playerName });
   };
 
   const handleJoinRoom = (roomId: string, playerName: string) => {
+    if (!playerName.trim() || !roomId.trim()) {
+      setError('Name and Room Code are required');
+      return;
+    }
+    console.log('Emitting join_ludo_room for:', roomId, playerName);
     socket?.emit('join_ludo_room', { roomId: roomId.toUpperCase(), playerName });
   };
 
