@@ -378,5 +378,8 @@
   "bugs": {
     "url": "https://github.com/Ramsurya-M/Portfolio/issues"
   },
-  "homepage": "https://github.com/Ramsurya-M/Portfolio#readme"
+  "homepage": "https://github.com/Ramsurya-M/Portfolio#readme",
+  "devDependencies": {
+    "baseline-browser-mapping": "^2.10.22"
+  }
 }
