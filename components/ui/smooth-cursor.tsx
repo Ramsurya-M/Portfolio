@@ -97,7 +97,7 @@ export function SmoothCursor({
   },
 }: SmoothCursorProps) {
   const pathname = usePathname();
-  const isGamePage = pathname?.startsWith('/games/uno');
+  const isGamePage = pathname?.startsWith('/games/uno') || pathname?.startsWith('/games/ludo');
 
   const lastMousePos = useRef<Position>({ x: 0, y: 0 });
   const velocity = useRef<Position>({ x: 0, y: 0 });

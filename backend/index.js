@@ -171,7 +171,9 @@ io.on('connection', (socket) => {
   socket.on('start_ludo_game', ({ roomId }) => {
     const room = ludoRooms.get(roomId);
     if (!room || room.hostId !== socket.id || room.players.length < 2) return;
-    room.engine.startGame(room.players);
+    const newState = room.engine.startGame(room.players);
+    // Sync colors back to the room players for UI consistency
+    room.players = newState.players;
     broadcastLudoState(roomId);
   });
 
@@ -185,6 +187,7 @@ io.on('connection', (socket) => {
         value: result.diceValue, 
         validMoves: result.validMoves 
       });
+      broadcastLudoState(roomId);
       // If no valid moves, engine might have auto-skipped or we wait for client
       if (result.validMoves.length === 0) {
         setTimeout(() => {
