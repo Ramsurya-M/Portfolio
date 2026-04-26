@@ -7,9 +7,10 @@ import { Gamepad2, Users, Plus, LogIn, Sparkles } from 'lucide-react';
 interface LudoLobbyProps {
   onJoin: (roomId: string, playerName: string) => void;
   onCreate: (playerName: string) => void;
+  isCreating?: boolean;
 }
 
-const LudoLobby: React.FC<LudoLobbyProps> = ({ onJoin, onCreate }) => {
+const LudoLobby: React.FC<LudoLobbyProps> = ({ onJoin, onCreate, isCreating }) => {
   const [playerName, setPlayerName] = useState('');
   const [roomId, setRoomId] = useState('');
   const [mode, setMode] = useState<'menu' | 'create' | 'join'>('menu');
@@ -101,9 +102,11 @@ const LudoLobby: React.FC<LudoLobbyProps> = ({ onJoin, onCreate }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                disabled={isCreating}
                 onClick={() => mode === 'create' ? onCreate(playerName) : onJoin(roomId, playerName)}
-                className="w-full py-6 bg-white text-black font-black rounded-3xl text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-blue-500 hover:text-white transition-all active:scale-[0.98]"
+                className="w-full py-6 bg-white text-black font-black rounded-3xl text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-blue-500 hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
               >
+                {isCreating && <Loader2 className="animate-spin" size={20} />}
                 {mode === 'create' ? 'Initialize' : 'Enter Arena'}
               </motion.button>
               <button onClick={() => setMode('menu')} className="text-[10px] font-black text-zinc-600 uppercase tracking-widest hover:text-white transition-colors">

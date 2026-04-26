@@ -23,19 +23,25 @@ export default function LudoGamePage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
 
   useEffect(() => {
-    const newSocket = io(SOCKET_URL);
+    console.log('Connecting to Socket at:', SOCKET_URL);
+    const newSocket = io(SOCKET_URL, {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+    });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
-      console.log('Ludo Socket Connected:', newSocket.id);
+      console.log('Ludo Socket Connected Successfully:', newSocket.id);
       setIsConnecting(false);
     });
+
     newSocket.on('connect_error', (err) => {
-      console.error('Ludo Connection Error:', err);
-      setError('Connection failed. Is the server running?');
+      console.error('Ludo Socket Connection Error:', err.message);
+      setError(`Connection failed: ${err.message}. Is the backend running on ${SOCKET_URL}?`);
       setIsConnecting(false);
     });
 
@@ -44,6 +50,7 @@ export default function LudoGamePage() {
       setRoomId(roomId);
       setMyPlayer(player);
       setPlayers([player]);
+      setIsCreating(false);
     });
 
     newSocket.on('ludo_room_joined', ({ roomId, player, players, messages }) => {
@@ -52,6 +59,7 @@ export default function LudoGamePage() {
       setMyPlayer(player);
       setPlayers(players);
       setMessages(messages || []);
+      setIsCreating(false);
     });
 
     newSocket.on('ludo_player_joined', (player) => {
@@ -74,7 +82,9 @@ export default function LudoGamePage() {
     });
 
     newSocket.on('error', (msg) => {
+      console.error('Ludo Server Error:', msg);
       setError(msg);
+      setIsCreating(false);
       setTimeout(() => setError(null), 4000);
     });
 
@@ -89,6 +99,7 @@ export default function LudoGamePage() {
       return;
     }
     console.log('Emitting create_ludo_room for:', playerName);
+    setIsCreating(true);
     socket?.emit('create_ludo_room', { playerName });
   };
 
@@ -98,6 +109,7 @@ export default function LudoGamePage() {
       return;
     }
     console.log('Emitting join_ludo_room for:', roomId, playerName);
+    setIsCreating(true);
     socket?.emit('join_ludo_room', { roomId: roomId.toUpperCase(), playerName });
   };
 
@@ -149,7 +161,7 @@ export default function LudoGamePage() {
               exit={{ opacity: 0, scale: 1.05, y: -20 }}
               className="w-full max-w-xl"
             >
-              <LudoLobby onJoin={handleJoinRoom} onCreate={handleCreateRoom} />
+              <LudoLobby onJoin={handleJoinRoom} onCreate={handleCreateRoom} isCreating={isCreating} />
             </motion.div>
           ) : !gameState ? (
             <motion.div
