@@ -1,0 +1,6 @@
+/* Responsive font size for certifications text on mobile */
+@media (max-width: 768px) {
+  .certifications-text {
+    font-size: 16px; /* Adjust as needed for mobile readability */
+  }
+}

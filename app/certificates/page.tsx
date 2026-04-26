@@ -66,7 +66,7 @@ export default function CertificatesPage() {
   return (
     <div className={`min-h-screen relative overflow-x-hidden selection:bg-purple-500/30 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-[#fffcf8]'}`}>
       <Navbar />
-      
+
       {/* Background Grid */}
       <div className={`fixed inset-0 pointer-events-none ${theme === 'dark' ? 'bg-grid-white/[0.02]' : 'bg-grid-black/[0.02]'}`} style={{ zIndex: 0 }} />
 
@@ -78,32 +78,31 @@ export default function CertificatesPage() {
           </h2>
           <h1 className={`text-5xl md:text-7xl font-black leading-none tracking-tighter ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
             My <br />
-            <span className={theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'}>Certifications</span>
+            <span className={`${theme === 'dark' ? 'text-neutral-500' : 'text-neutral-400'} text-3xl md:text-5xl`}>Certifications</span>
           </h1>
         </div>
 
         {/* Certificates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
           {certificates.map((cert) => (
-            <div 
-              key={cert.id} 
-              className={`rounded-3xl overflow-hidden transition-all duration-500 group border ${
-                theme === 'dark' 
-                  ? 'bg-neutral-900/40 border-white/5 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]' 
-                  : 'bg-white/60 border-neutral-200 hover:border-amber-500/30 hover:shadow-xl shadow-sm'
-              } backdrop-blur-sm flex flex-col`}
+            <div
+              key={cert.id}
+              className={`rounded-3xl overflow-hidden transition-all duration-500 group border ${theme === 'dark'
+                ? 'bg-neutral-900/40 border-white/5 hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.1)]'
+                : 'bg-white/60 border-neutral-200 hover:border-amber-500/30 hover:shadow-xl shadow-sm'
+                } backdrop-blur-sm flex flex-col`}
             >
               {/* Certificate Image */}
               <div className="relative w-full aspect-[4/3] bg-neutral-100 dark:bg-neutral-800/50">
-                <Image 
-                  src={cert.imageUrl} 
-                  alt={`${cert.title} certificate`} 
-                  layout="fill" 
+                <Image
+                  src={cert.imageUrl}
+                  alt={`${cert.title} certificate`}
+                  layout="fill"
                   objectFit="contain"
                   className="p-4 transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              
+
               {/* Certificate Content */}
               <div className="p-8 flex flex-col flex-grow">
                 <h2 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
@@ -117,16 +116,15 @@ export default function CertificatesPage() {
                     {cert.date}
                   </p>
                 </div>
-                
+
                 {/* Verification Link */}
                 <div className="mt-auto">
-                  <a 
-                    href={cert.verifyUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className={`inline-flex items-center text-sm font-bold tracking-tight ${
-                      theme === 'dark' ? 'text-purple-400 hover:text-purple-300' : 'text-amber-600 hover:text-amber-700'
-                    } transition-colors group/link`}
+                  <a
+                    href={cert.verifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center text-sm font-bold tracking-tight ${theme === 'dark' ? 'text-purple-400 hover:text-purple-300' : 'text-amber-600 hover:text-amber-700'
+                      } transition-colors group/link`}
                   >
                     <span>Verify Credential</span>
                     <svg className="ml-2 w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

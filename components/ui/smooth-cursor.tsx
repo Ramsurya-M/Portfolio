@@ -2,7 +2,8 @@
 
 import { motion, useSpring } from "motion/react";
 import { FC, JSX, useEffect, useRef } from "react";
-import { useTheme } from "next-themes"; // Add this import
+import { useTheme } from "next-themes";
+import { usePathname } from 'next/navigation';
 
 interface Position {
   x: number;
@@ -20,7 +21,7 @@ export interface SmoothCursorProps {
 }
 
 const DefaultCursorSVG: FC = () => {
-  const { theme } = useTheme(); // Get current theme
+  const { theme } = useTheme();
 
   // Determine fill color based on theme
   const fillColor = theme === "dark" ? "#ff6600" : "black";
@@ -95,7 +96,9 @@ export function SmoothCursor({
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
-  // Removed: const [isMoving, setIsMoving] = useState(false);
+  const pathname = usePathname();
+  const isGamePage = pathname?.startsWith('/games/uno');
+
   const lastMousePos = useRef<Position>({ x: 0, y: 0 });
   const velocity = useRef<Position>({ x: 0, y: 0 });
   const lastUpdateTime = useRef(Date.now());
@@ -116,6 +119,12 @@ export function SmoothCursor({
   });
 
   useEffect(() => {
+    // If it's a game page, ensure the cursor is restored and don't add listeners
+    if (isGamePage) {
+      document.body.style.cursor = "auto";
+      return;
+    }
+
     const updateVelocity = (currentPos: Position) => {
       const currentTime = Date.now();
       const deltaTime = currentTime - lastUpdateTime.current;
@@ -155,11 +164,9 @@ export function SmoothCursor({
         previousAngle.current = currentAngle;
 
         scale.set(0.95);
-        // Removed: setIsMoving(true);
 
         const timeout = setTimeout(() => {
           scale.set(1);
-          // Removed: setIsMoving(false);
         }, 150);
 
         return () => clearTimeout(timeout);
@@ -184,7 +191,10 @@ export function SmoothCursor({
       document.body.style.cursor = "auto";
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [cursorX, cursorY, rotation, scale]);
+  }, [cursorX, cursorY, rotation, scale, isGamePage]);
+
+  // Completely skip rendering if on game page
+  if (isGamePage) return null;
 
   return (
     <motion.div

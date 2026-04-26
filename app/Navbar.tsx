@@ -35,11 +35,12 @@ const Navbar = () => {
     { href: "/certificates", label: "Certificates" },
     { href: "/resume", label: "Resume" },
     { href: "/contact", label: "Contact" },
+    { href: "/game", label: "Game" },
   ];
 
   return (
     <nav className="fixed w-full border-b border-gray-200 bg-white/50 dark:border-gray-800 dark:bg-gray-950/50 backdrop-blur-xl z-50">
-      <SmoothCursor/>
+      <SmoothCursor />
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Left side: Theme Toggle */}
