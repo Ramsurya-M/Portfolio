@@ -204,7 +204,6 @@
     "levn": "^0.4.1",
     "lie": "^3.3.0",
     "lightningcss": "^1.29.1",
-    "lightningcss-win32-x64-msvc": "^1.29.1",
     "locate-path": "^6.0.0",
     "lodash.merge": "^4.6.2",
     "loose-envify": "^1.4.0",
