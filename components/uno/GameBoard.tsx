@@ -93,7 +93,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameState, socket, myId }) => {
   const sendMeme = (memeUrl: string) => socket.emit('send_meme', { roomId, memeUrl });
 
   return (
-    <div className="relative w-full h-[85vh] flex items-stretch gap-6 overflow-hidden font-sans">
+    <div className="relative w-full min-h-[85vh] flex flex-col lg:flex-row items-stretch gap-4 lg:gap-6 overflow-hidden font-sans">
       {/* Sidebar: Chat & Status */}
       <ChatPanel messages={messages} onSendMessage={sendMessage} onSendMeme={sendMeme} myId={myId} />
 
