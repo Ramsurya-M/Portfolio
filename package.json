@@ -40,7 +40,7 @@
     "balanced-match": "^1.0.2",
     "base64-js": "^1.5.1",
     "bidi-js": "^1.0.3",
-    "brace-expansion": "^1.1.11",
+    "brace-expansion": "^1.1.14",
     "braces": "^3.0.3",
     "buffer": "^6.0.3",
     "call-bind": "^1.0.8",
